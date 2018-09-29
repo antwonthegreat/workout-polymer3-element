@@ -37,7 +37,7 @@
     "gulp-replace": "^1.0.0",
     "prpl-server": "^1.2.0",
     "tslint": "5.11.0",
-    "typescript": "^3.0.1",
+    "typescript": "3.0.1",
     "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.5",
     "@types/sinon": "^5.0.2",
