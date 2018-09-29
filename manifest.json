@@ -1,7 +1,7 @@
 {
-  "name": "Marketing",
-  "short_name": "Marketing",
-  "description": "Manage Crm to Eloqua Claimed Accounts",
+  "name": "Workout",
+  "short_name": "Workout",
+  "description": "Track Workouts",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",

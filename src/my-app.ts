@@ -3,8 +3,7 @@ import '@polymer/iron-flex-layout/iron-flex-layout.js';
 import '@polymer/app-route/app-route.js';
 import '@polymer/app-route/app-location.js';
 import '@vaadin/vaadin-progress-bar/theme/material/vaadin-progress-bar';
-import '@leavittsoftware/user-manager/lib/user-manager.js';
-import './components/marketing/marketing-error';
+import './components/general/general-error';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, observe, property} from '@polymer/decorators';
@@ -35,11 +34,11 @@ import {store} from './store';
 
   @observe('routeData.page')
   routeDataPersonIdChanged(page: string) {
-    const routeablePages = {admin: true, dashboard: true};
+    const routeablePages = {user: true, public: true};
 
     if (!routeablePages[page]) {
       // go to default page.
-      this.set('routeData.page', 'admin/');
+      this.set('routeData.page', 'user/');
       return;
     }
 
@@ -82,18 +81,18 @@ import {store} from './store';
     if (!mainPage)
       return;
 
-    const title = `${mainPage.charAt(0).toUpperCase() + mainPage.slice(1)} - Leavitt Group Marketing`;
+    const title = `${mainPage.charAt(0).toUpperCase() + mainPage.slice(1)} - Workout Prime`;
     store.dispatch(Actions.setTitle(title));
     try {
       switch (mainPage) {
-        case 'admin':
+        case 'user':
           store.dispatch(Actions.pageLoadingStarted());
-          await import('./components/admin/admin-app.js');
+          await import('./components/user/user-app.js');
           store.dispatch(Actions.pageLoadingEnded());
           break;
-        case 'dashboard':
+        case 'public':
           store.dispatch(Actions.pageLoadingStarted());
-          await import('./components/dashboard/dashboard-app.js');
+          await import('./components/public/public-app.js');
           store.dispatch(Actions.pageLoadingEnded());
           break;
       }
@@ -155,15 +154,14 @@ import {store} from './store';
     display: none;
   }
 </style>
-<user-manager></user-manager>
 <app-location route="{{route}}"></app-location>
 <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"> </app-route>
 
 <vaadin-progress-bar hidden$="[[!isLoading]]" indeterminate duration="0"></vaadin-progress-bar>
 <main-content offline$="[[!isOnline]]">
-  <admin-app id="adminApp" hidden$="[[!_isActive(mainPage, 'admin')]]"></admin-app>
-  <dashboard-app id="dashboardApp" hidden$="[[!_isActive(mainPage, 'dashboard')]]">Dashboard App</dashboard-app>
-  <marketing-error hidden$="[[!_isActive(mainPage, 'error')]]">Marketing Error</marketing-error>
+  <user-app id="userApp" hidden$="[[!_isActive(mainPage, 'user')]]"></user-app>
+  <public-app id="publicApp" hidden$="[[!_isActive(mainPage, 'public')]]"></public-app>
+  <general-error hidden$="[[!_isActive(mainPage, 'error')]]">General Error</general-error>
 </main-content>
 <titanium-offline-notice is-online="{{isOnline}}"> </titanium-offline-notice>
 <general-snack-bar snackbar-error-message="[[snackbarErrorMessage]]"></general-snack-bar>

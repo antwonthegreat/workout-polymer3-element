@@ -8,7 +8,7 @@ import {html, PolymerElement} from '@polymer/polymer';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import {store} from '../../store';
 
-@customElement('marketing-error') export class MarketingError extends connectMixin
+@customElement('general-error') export class GeneralError extends connectMixin
 (store, PolymerElement) {
   @property() fatalErrorMessage: string;
 
@@ -73,7 +73,7 @@ import {store} from '../../store';
     @apply --layout-vertical;
     padding: 16px;
   }
-  
+
   img {
     height: 150px;
     width: 150px;
@@ -82,8 +82,7 @@ import {store} from '../../store';
 
 <app-header shadow fixed id="header">
   <app-toolbar>
-    <div main-title>Marketing</div>
-    <profile-picture-menu size="35"></profile-picture-menu>
+    <div main-title>Error</div>
   </app-toolbar>
 </app-header>
 

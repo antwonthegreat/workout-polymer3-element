@@ -25,10 +25,7 @@ module.exports = {
       }
     }
   }, {
-    urlPattern: /https:\/\/api2.leavitt.com\/*/,
-    handler: 'networkFirst'
-  }, {
-    urlPattern: /https:\/\/devapi2.leavitt.com\/*/,
+    urlPattern: /http:\/\/localhost:59465\/*/,
     handler: 'networkFirst'
   }
   ],

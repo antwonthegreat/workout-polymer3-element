@@ -1,4 +1,4 @@
-# Marketing - Polymer 3.x
+# Workout - Polymer 3.x
 
 * **npm install -G polymer-cli** install node dependencies
 
