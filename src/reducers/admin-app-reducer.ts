@@ -5,7 +5,6 @@ import {AdminState} from '../model/state/AdminState';
 
 const initialState = {
   selectedProducer: null,
-  toolbarTitle: 'User'
 } as AdminState;
 
 export const reducer: Reducer<AdminState> = (state = initialState, action: adminActions.Actions) => {

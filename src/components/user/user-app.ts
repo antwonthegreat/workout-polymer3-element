@@ -64,11 +64,11 @@ store.addReducers({AdminState, WorkoutState});
   }
 
   _stateChanged(state: ApplicationState) {
-    if (!state.AdminState) {
+    if (!state.AppState) {
       return;
     }
 
-    this.toolbarTitle = state.AdminState.toolbarTitle;
+    this.toolbarTitle = state.AppState.title;
   }
 
   @observe('routeData.personId')

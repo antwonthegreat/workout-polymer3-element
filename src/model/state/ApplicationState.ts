@@ -1,11 +1,7 @@
-import {AdminState} from './AdminState';
 import {AppState} from './AppState';
-import {DashboardState} from './DashboardState';
-import {EmailTemplatesCardState} from './EmailTemplatesCardState';
+import {WorkoutState} from './WorkoutState';
 
 export interface ApplicationState {
-  AdminState?: AdminState;
+  WorkoutState?: WorkoutState;
   AppState?: AppState;
-  DashboardState?: DashboardState;
-  EmailTemplatesCardState?: EmailTemplatesCardState;
 }
