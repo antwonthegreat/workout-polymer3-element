@@ -1,8 +1,9 @@
+import {ODataDto} from '@leavittsoftware/api-service/lib/odata-dto';
 import Lift from './Lift';
 import UserToLiftType from './UserToLiftType';
 import WorkoutType from './WorkoutType';
 
-export default interface LiftType {
+export default interface LiftType extends ODataDto {
   Id: number;
   Name: string;
   Timed: boolean;
