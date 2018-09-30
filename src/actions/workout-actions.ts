@@ -4,6 +4,7 @@ import { ActionsUnion, createAction, Action } from '@leavittsoftware/titanium-el
 import {StringMap} from '@leavittsoftware/titanium-elements/lib/titanium-types';
 import { ApplicationState } from '../model/state/ApplicationState';
 import { Actions as AppActions} from './app-actions';
+import {IdMap,toDictionary} from '../services/action-helpers';
 import Workout from '../model/Workout';
 
 type EntityType = Workout;
@@ -17,7 +18,7 @@ export const ENTITIES_RECEIVED = `${entityName}S_RECEIVED`;
 export const Actions = {
   entityCreated: (entity: EntityType) => createAction(ENTITY_CREATED, entity),
   entityDeleted: (id: number) => createAction(ENTITY_DELETED, id),
-  entitiesReceived: (message: StringMap<EntityType>) => createAction(ENTITIES_RECEIVED, message),
+  entitiesReceived: (message: IdMap<EntityType>) => createAction(ENTITIES_RECEIVED, message),
   entityUpdated: (entity: EntityType) => createAction(ENTITY_UPDATED, entity),
 };
 
@@ -28,9 +29,8 @@ export const getItemsAsync = () => {
     dispatch(AppActions.pageLoadingStarted());
     try {
       items =
-          (await apiService.getAsync<EntityType>(
-               `Workouts?$select=Name,Id,StartDate&$expand=WorkoutType($select=Name),Lifts($expand=LiftType($select=Name))&$orderby=StartDate`))
-              .toDictionary();
+      toDictionary((await apiService.getAsync<EntityType>(
+               `Workouts?$select=Name,Id,StartDate&$expand=WorkoutType($select=Name),Lifts($expand=LiftType($select=Name))&$orderby=StartDate`,'')).toList())
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));

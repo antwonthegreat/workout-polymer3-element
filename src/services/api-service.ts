@@ -1,4 +1,5 @@
 import { IApiService } from './i-api-service';
+import {GetResult} from '@leavittsoftware/api-service';
 
 export default class ApiService implements IApiService {
     baseUrl: string = 'http://localhost:59465/';
@@ -182,60 +183,5 @@ export default class ApiService implements IApiService {
       } else {
         return Promise.reject('Request error, please try again later.');
       }
-    }
-  }
-
-  class GetResult<T> {
-    private data: Array<T>;
-    public odataCount: number;
-    constructor(json: any) {
-      if (!isNaN(Number(json['@odata.count']))) {
-        this.odataCount = Number(json['@odata.count']);
-      }
-
-      if (Array.isArray(json.value)) {
-        this.data = json.value.map((o: any) => {
-          return GetResult.convertODataInfo<T>(o);
-        });
-      } else {
-        this.data = [];
-        this.data.push(json.hasOwnProperty('value') ? json.value : json);
-      }
-    }
-
-    count(): number {
-      return this.data.length;
-    }
-
-    firstOrDefault(): T|null {
-      if (this.count() > 0) {
-        return GetResult.convertODataInfo<T>(this.data[0]);
-      }
-      return null;
-    }
-
-    toList(): Array<T> {
-      return this.data;
-    }
-
-    toDictionary(): {[key: number]: T} {
-      return this.data.reduce((acc: any, item: any) => {
-        acc[item.Id] = item;
-        return acc;
-      }, {});
-    }
-
-    static convertODataInfo<T>(item: any): T {
-      if (item['@odata.type']) {
-        if (!item._odataInfo) {
-          item._odataInfo = {};
-        }
-        item._odataInfo.type = item['@odata.type'];
-        delete item['@odata.type'];
-
-        let parts = item._odataInfo.type.split('.');
-        item._odataInfo.shortType = parts[parts.length - 1];
-      }
-      return item;
     }
   }

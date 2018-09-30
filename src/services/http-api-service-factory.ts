@@ -1,13 +1,11 @@
-import {ApiService} from '@leavittsoftware/api-service/lib/api-service';
-import {AuthenticatedTokenProvider} from '@leavittsoftware/api-service/lib/authenticated-token-provider';
-import {determineIsDevelopment} from '@leavittsoftware/titanium-elements/lib/titanium-dev-detection-mixin';
+import ApiService from './api-service';
 
 import {ApiServiceFactory} from './api-service-factory';
+import { IApiService } from './i-api-service';
 
 export class HttpApiServiceFactory implements ApiServiceFactory {
-  create(): ApiService {
-    const apiService = new ApiService(new AuthenticatedTokenProvider());
-    apiService.baseUrl = determineIsDevelopment(window.location.origin) ? 'https://devapi2.leavitt.com/' : 'https://api2.leavitt.com/';
+  create(): IApiService {
+    const apiService = new ApiService();
     return apiService;
   }
 }
