@@ -11,12 +11,13 @@ import {html, PolymerElement} from '@polymer/polymer';
 import {afterNextRender} from '@polymer/polymer/lib/utils/render-status.js';
 
 import {Actions as AppAction} from '../../actions/app-actions';
-import {deleteItemAsync, getItemsAsync} from '../../actions/workout-actions';
+import {getItemsAsync} from '../../actions/workout-actions';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import {adminAppReducer as AdminState} from '../../reducers/admin-app-reducer';
+import {workoutReducer as WorkoutState} from '../../reducers/workout-reducer';
 import {store} from '../../store';
 
-store.addReducers({AdminState});
+store.addReducers({AdminState, WorkoutState});
 @customElement('user-app') export class UserAppElement extends connectMixin
 (store, PolymerElement) {
   @property() isDesktopNavigationOpen: boolean = false;
@@ -51,7 +52,15 @@ store.addReducers({AdminState});
 
     this._stateChanged(store.getState());
     store.dispatch<any>(getItemsAsync());
-    store.dispatch<any>(deleteItemAsync(30));
+    // setTimeout(() => {
+    //   store.dispatch<any>(updateItemAsync(22, {Name: 'patcheedd'}));
+    // }, 5000);
+    // setTimeout(() => {
+    //   store.dispatch<any>(deleteItemAsync(22));
+    // }, 5000);
+    // setTimeout(() => {
+    //   store.dispatch<any>(createItemAsync({Name: 'patcheedd'}));
+    // }, 5000);
   }
 
   _stateChanged(state: ApplicationState) {
