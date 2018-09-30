@@ -11,7 +11,7 @@ import {html, PolymerElement} from '@polymer/polymer';
 import {afterNextRender} from '@polymer/polymer/lib/utils/render-status.js';
 
 import {Actions as AppAction} from '../../actions/app-actions';
-import {getItemsAsync} from '../../actions/workout-actions';
+import {deleteItemAsync, getItemsAsync} from '../../actions/workout-actions';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import {adminAppReducer as AdminState} from '../../reducers/admin-app-reducer';
 import {store} from '../../store';
@@ -51,6 +51,7 @@ store.addReducers({AdminState});
 
     this._stateChanged(store.getState());
     store.dispatch<any>(getItemsAsync());
+    store.dispatch<any>(deleteItemAsync(30));
   }
 
   _stateChanged(state: ApplicationState) {
