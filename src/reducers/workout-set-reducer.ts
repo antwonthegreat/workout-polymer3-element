@@ -1,22 +1,21 @@
 import {Reducer} from 'redux';
 import {createSelector} from 'reselect';
 
-import * as actions from '../actions/workout-type-actions';
+import * as actions from '../actions/workout-set-actions';
 import {ApplicationState} from '../model/state/ApplicationState';
-import {WorkoutTypeState} from '../model/state/WorkoutTypeState';
-import WorkoutType from '../model/WorkoutType';
+import {WorkoutSetState} from '../model/state/WorkoutSetState';
+import WorkoutSet from '../model/WorkoutSet';
 import {IdMap} from '../services/action-helpers';
 
 const initialState = {
   selectedId: null,
   list: {}
-} as WorkoutTypeState;
+} as WorkoutSetState;
 
-export const WorkoutTypeReducer: Reducer<WorkoutTypeState> = (state = initialState, action: actions.Actions) => {
+export const WorkoutSetReducer: Reducer<WorkoutSetState> = (state = initialState, action: actions.Actions) => {
   switch (action.type) {
     case actions.ENTITIES_RECEIVED:
-      const list = action.payload as IdMap<WorkoutType>;
-      return {...state, list};
+      return {...state, list: action.payload};
     case actions.ENTITY_CREATED:
       return {...state, list: {...state.list, [action.payload.Id]: action.payload}};
     case actions.ENTITY_UPDATED:
@@ -32,13 +31,13 @@ export const WorkoutTypeReducer: Reducer<WorkoutTypeState> = (state = initialSta
   }
 };
 
-const getItems = (state: ApplicationState): IdMap<WorkoutType> => {
-  if (!state.WorkoutTypeReducer)
+const getItems = (state: ApplicationState): IdMap<WorkoutSet> => {
+  if (!state.WorkoutSetReducer)
     return {};
 
-  return state.WorkoutTypeReducer.list;
+  return state.WorkoutSetReducer.list;
 };
 
-export const itemsSelector = createSelector(getItems, (items: IdMap<WorkoutType>): Array<WorkoutType> => {
+export const itemsSelector = createSelector(getItems, (items: IdMap<WorkoutSet>): Array<WorkoutSet> => {
   return Object.values(items);
 });

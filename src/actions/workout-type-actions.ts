@@ -13,10 +13,10 @@ type EntityType = WorkoutType;
 const entityName = 'WORKOUT_TYPE';
 const controllerName = 'WorkoutTypes';
 
-export const ENTITY_CREATED = `${entityName}_CREATED`;
-export const ENTITY_UPDATED = `${entityName}_UPDATED`;
-export const ENTITY_DELETED = `${entityName}_DELETED`;
-export const ENTITIES_RECEIVED = `${entityName}S_RECEIVED`;
+export const ENTITY_CREATED = 'WORKOUT_TYPE_CREATED';
+export const ENTITY_UPDATED = 'WORKOUT_TYPE_UPDATED';
+export const ENTITY_DELETED = 'WORKOUT_TYPE_DELETED';
+export const ENTITIES_RECEIVED = 'WORKOUT_TYPES_RECEIVED';
 
 export const Actions = {
   entityCreated: (entity: EntityType) => createAction(ENTITY_CREATED, entity),

@@ -3,34 +3,34 @@ import {StringMap} from '@leavittsoftware/titanium-elements/lib/titanium-types';
 import {ThunkDispatch} from 'redux-thunk';
 
 import {ActionInjectable} from '../model/ActionInjectable';
+import Lift from '../model/Lift';
 import {ApplicationState} from '../model/state/ApplicationState';
-import Workout from '../model/Workout';
 import {IdMap, toDictionary} from '../services/action-helpers';
 
 import {Actions as AppActions} from './app-actions';
 
-type EntityType = Workout;
-const entityName = 'Workout';
+type EntityType = Lift;
+const entityName = 'Lift';
+const controllerName = 'Lifts';
 
-export const ENTITY_CREATED = 'WORKOUT_CREATED';
-export const ENTITY_UPDATED = 'WORKOUT_UPDATED';
-export const ENTITY_DELETED = 'WORKOUT_DELETED';
-export const ENTITIES_RECEIVED = 'WORKOUTS_RECEIVED';
+export const ENTITY_CREATED = 'LIFT_CREATED';
+export const ENTITY_DELETED = 'LIFT_DELETED';
+export const ENTITIES_RECEIVED = 'LIFTS_RECEIVED';
 
 export const Actions = {
   entityCreated: (entity: EntityType) => createAction(ENTITY_CREATED, entity),
   entityDeleted: (id: number) => createAction(ENTITY_DELETED, id),
-  entitiesReceived: (message: IdMap<EntityType>) => createAction(ENTITIES_RECEIVED, message),
-  entityUpdated: (entity: Partial<EntityType>) => createAction(ENTITY_UPDATED, entity),
+  entitiesReceived: (message: IdMap<EntityType>) => createAction(ENTITIES_RECEIVED, message)
 };
 
 export const getItemsAsync = () => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
+
     let items: StringMap<EntityType>;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = toDictionary((await apiService.getAsync<EntityType>(`Workouts?$select=Name,Id,StartDate&$expand=WorkoutType($select=Name),Lifts($expand=LiftType($select=Name))&$orderby=StartDate`, '')).toList());
+      items = toDictionary((await apiService.getAsync<EntityType>(`${controllerName}?$select=LiftTypeId,Id,StartDate,WorkoutId&$expand=WorkoutSets($select=Reps,Weight)`, '')).toList());
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -51,7 +51,7 @@ export const createItemAsync = (item: Partial<EntityType>) => {
     let createdItem: EntityType|null;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      createdItem = (await apiService.postAsync<EntityType>('Workouts', item, ''));
+      createdItem = (await apiService.postAsync<EntityType>(controllerName, item, ''));
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -66,28 +66,12 @@ export const createItemAsync = (item: Partial<EntityType>) => {
   };
 };
 
-export const updateItemAsync = (id: number, item: Partial<EntityType>) => {
-  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
-    const apiService = injected.apiServiceFactory.create();
-    dispatch(AppActions.pageLoadingStarted());
-    try {
-      (await apiService.patchAsync(`Workouts(${id})`, item, ''));
-    } catch (error) {
-      dispatch(AppActions.pageLoadingEnded());
-      dispatch(AppActions.setSnackbarErrorMessage(error));
-      return;
-    }
-    dispatch(AppActions.pageLoadingEnded());
-    dispatch(Actions.entityUpdated({...item, Id: id}));
-  };
-};
-
 export const deleteItemAsync = (id: number) => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
     dispatch(AppActions.pageLoadingStarted());
     try {
-      (await apiService.deleteAsync(`Workouts(${id})`, ''));
+      (await apiService.deleteAsync(`${controllerName}(${id})`, ''));
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));

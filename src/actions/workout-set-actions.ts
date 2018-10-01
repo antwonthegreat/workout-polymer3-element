@@ -4,18 +4,19 @@ import {ThunkDispatch} from 'redux-thunk';
 
 import {ActionInjectable} from '../model/ActionInjectable';
 import {ApplicationState} from '../model/state/ApplicationState';
-import Workout from '../model/Workout';
+import WorkoutSet from '../model/WorkoutSet';
 import {IdMap, toDictionary} from '../services/action-helpers';
 
 import {Actions as AppActions} from './app-actions';
 
-type EntityType = Workout;
-const entityName = 'Workout';
+type EntityType = WorkoutSet;
+const entityName = 'Set';
+const controllerName = 'WorkoutSets';
 
-export const ENTITY_CREATED = 'WORKOUT_CREATED';
-export const ENTITY_UPDATED = 'WORKOUT_UPDATED';
-export const ENTITY_DELETED = 'WORKOUT_DELETED';
-export const ENTITIES_RECEIVED = 'WORKOUTS_RECEIVED';
+export const ENTITY_CREATED = 'WORKOUT_SET_CREATED';
+export const ENTITY_UPDATED = 'WORKOUT_SET_UPDATED';
+export const ENTITY_DELETED = 'WORKOUT_SET_DELETED';
+export const ENTITIES_RECEIVED = 'WORKOUT_SETS_RECEIVED';
 
 export const Actions = {
   entityCreated: (entity: EntityType) => createAction(ENTITY_CREATED, entity),
@@ -24,13 +25,16 @@ export const Actions = {
   entityUpdated: (entity: Partial<EntityType>) => createAction(ENTITY_UPDATED, entity),
 };
 
-export const getItemsAsync = () => {
+export const getPersonalBestAsync = (liftTypeId: number) => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
+    const appState = _getState().AppReducer;
+    const userId = (appState && appState.userId) || 0;
+
     let items: StringMap<EntityType>;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = toDictionary((await apiService.getAsync<EntityType>(`Workouts?$select=Name,Id,StartDate&$expand=WorkoutType($select=Name),Lifts($expand=LiftType($select=Name))&$orderby=StartDate`, '')).toList());
+      items = toDictionary((await apiService.getAsync<EntityType>(`${controllerName}?$select=Weight,Reps&$filter=Lift/Workout/UserId eq ${userId} and Lift/LiftTypeId eq ${liftTypeId}&orderby=Weight desc,Reps desc`, '')).toList());
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -51,7 +55,7 @@ export const createItemAsync = (item: Partial<EntityType>) => {
     let createdItem: EntityType|null;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      createdItem = (await apiService.postAsync<EntityType>('Workouts', item, ''));
+      createdItem = (await apiService.postAsync<EntityType>(controllerName, item, ''));
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -71,7 +75,7 @@ export const updateItemAsync = (id: number, item: Partial<EntityType>) => {
     const apiService = injected.apiServiceFactory.create();
     dispatch(AppActions.pageLoadingStarted());
     try {
-      (await apiService.patchAsync(`Workouts(${id})`, item, ''));
+      (await apiService.patchAsync(`${controllerName}(${id})`, item, ''));
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -87,7 +91,7 @@ export const deleteItemAsync = (id: number) => {
     const apiService = injected.apiServiceFactory.create();
     dispatch(AppActions.pageLoadingStarted());
     try {
-      (await apiService.deleteAsync(`Workouts(${id})`, ''));
+      (await apiService.deleteAsync(`${controllerName}(${id})`, ''));
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
