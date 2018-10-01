@@ -6,7 +6,7 @@ import Workout from '../model/Workout';
 import {IdMap} from '../services/action-helpers';
 
 const initialState = {
-  selectedWorkoutId: null,
+  selectedId: null,
   list: {}
 } as WorkoutState;
 
