@@ -68,12 +68,12 @@ import {store} from './store';
   }
 
   _stateChanged(state: ApplicationState) {
-    if (!state.AppState)
+    if (!state.AppReducer)
       return;
-    this.mainPage = state.AppState.mainPage;
-    this.snackbarErrorMessage = state.AppState.snackbarErrorMessage;
-    this.isLoading = state.AppState.loadingCounter > 0;
-    document.title = state.AppState.title;
+    this.mainPage = state.AppReducer.mainPage;
+    this.snackbarErrorMessage = state.AppReducer.snackbarErrorMessage;
+    this.isLoading = state.AppReducer.loadingCounter > 0;
+    document.title = state.AppReducer.title;
   }
 
   @observe('mainPage')

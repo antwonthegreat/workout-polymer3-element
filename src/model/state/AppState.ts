@@ -4,4 +4,5 @@ export interface AppState {
   title: string;
   fatalErrorMessage;
   snackbarErrorMessage;
+  userId: number;
 }

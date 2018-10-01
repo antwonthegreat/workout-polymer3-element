@@ -3,7 +3,7 @@ import {applyMiddleware, combineReducers, compose as origCompose, createStore} f
 import thunk from 'redux-thunk';
 
 import {ApplicationState} from './model/state/ApplicationState';
-import {appReducer as AppState} from './reducers/app-reducer';
+import {AppReducer} from './reducers/app-reducer';
 import {ApiServiceFactory} from './services/api-service-factory';
 import {HttpApiServiceFactory} from './services/http-api-service-factory';
 
@@ -18,7 +18,7 @@ const compose = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || origComp
 export const store = createStore((state: ApplicationState, _action: any) => state, {}, compose(lazyReducerEnhancer(combineReducers), applyMiddleware<ApiServiceFactory>(thunk.withExtraArgument({apiServiceFactory: new HttpApiServiceFactory()})))) as LazyReducerEnhancerStore;
 
 // Initially loaded reducers.
-store.addReducers({AppState});
+store.addReducers({AppReducer});
 
 store.subscribe(() => {
   store.getState() as ApplicationState;

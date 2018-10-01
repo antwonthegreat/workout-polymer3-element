@@ -11,7 +11,7 @@ const initialState = {
   snackbarErrorMessage: ''
 } as AppState;
 
-const reducer: Reducer<AppState> = (state = initialState, action: fromActions.Actions) => {
+export const AppReducer: Reducer<AppState> = (state = initialState, action: fromActions.Actions) => {
   switch (action.type) {
     case fromActions.SET_MAIN_PAGE: {
       return {...state, mainPage: action.payload};
@@ -35,4 +35,3 @@ const reducer: Reducer<AppState> = (state = initialState, action: fromActions.Ac
       return state;
   }
 };
-export {reducer as appReducer};

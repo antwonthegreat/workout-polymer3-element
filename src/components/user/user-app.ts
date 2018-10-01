@@ -11,13 +11,15 @@ import {html, PolymerElement} from '@polymer/polymer';
 import {afterNextRender} from '@polymer/polymer/lib/utils/render-status.js';
 
 import {Actions as AppAction} from '../../actions/app-actions';
-import {getItemsAsync} from '../../actions/workout-actions';
+import {getItemsAsync} from '../../actions/workout-type-actions';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import {adminAppReducer as AdminState} from '../../reducers/admin-app-reducer';
-import {workoutReducer as WorkoutState} from '../../reducers/workout-reducer';
+import {WorkoutReducer} from '../../reducers/workout-reducer';
+import {WorkoutTypeReducer} from '../../reducers/workout-type-reducer';
+
 import {store} from '../../store';
 
-store.addReducers({AdminState, WorkoutState});
+store.addReducers({AdminState, WorkoutTypeReducer, WorkoutReducer});
 @customElement('user-app') export class UserAppElement extends connectMixin
 (store, PolymerElement) {
   @property() isDesktopNavigationOpen: boolean = false;
@@ -64,11 +66,11 @@ store.addReducers({AdminState, WorkoutState});
   }
 
   _stateChanged(state: ApplicationState) {
-    if (!state.AppState) {
+    if (!state.AppReducer) {
       return;
     }
 
-    this.toolbarTitle = state.AppState.title;
+    this.toolbarTitle = state.AppReducer.title;
   }
 
   @observe('routeData.personId')

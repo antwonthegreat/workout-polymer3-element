@@ -13,11 +13,11 @@ import {store} from '../../store';
   @property() fatalErrorMessage: string;
 
   _stateChanged(state: ApplicationState) {
-    if (!state.AppState) {
+    if (!state.AppReducer) {
       return;
     }
 
-    this.fatalErrorMessage = state.AppState.fatalErrorMessage;
+    this.fatalErrorMessage = state.AppReducer.fatalErrorMessage;
   }
 
   static get template() {

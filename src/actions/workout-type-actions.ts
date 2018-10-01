@@ -4,13 +4,14 @@ import {ThunkDispatch} from 'redux-thunk';
 
 import {ActionInjectable} from '../model/ActionInjectable';
 import {ApplicationState} from '../model/state/ApplicationState';
-import Workout from '../model/Workout';
+import WorkoutType from '../model/WorkoutType';
 import {IdMap, toDictionary} from '../services/action-helpers';
 
 import {Actions as AppActions} from './app-actions';
 
-type EntityType = Workout;
-const entityName = 'WORKOUT';
+type EntityType = WorkoutType;
+const entityName = 'WORKOUT_TYPE';
+const controllerName = 'WorkoutTypes';
 
 export const ENTITY_CREATED = `${entityName}_CREATED`;
 export const ENTITY_UPDATED = `${entityName}_UPDATED`;
@@ -27,10 +28,13 @@ export const Actions = {
 export const getItemsAsync = () => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
+    const appState = _getState().AppReducer;
+    const userId = (appState && appState.userId) || 0;
+
     let items: StringMap<EntityType>;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = toDictionary((await apiService.getAsync<EntityType>(`Workouts?$select=Name,Id,StartDate&$expand=WorkoutType($select=Name),Lifts($expand=LiftType($select=Name))&$orderby=StartDate`, '')).toList());
+      items = toDictionary((await apiService.getAsync<EntityType>(`${controllerName}?$select=Name,Id&$expand=LiftTypes($select=Name,Timed,WorkoutTypeId;$expand=UserToLiftTypes($select=UserId;$filter=UserId eq ${userId}))`, '')).toList());
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -51,7 +55,7 @@ export const createItemAsync = (item: Partial<EntityType>) => {
     let createdItem: EntityType|null;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      createdItem = (await apiService.postAsync<EntityType>('Workouts', item, ''));
+      createdItem = (await apiService.postAsync<EntityType>(controllerName, item, ''));
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -71,7 +75,7 @@ export const updateItemAsync = (id: number, item: Partial<EntityType>) => {
     const apiService = injected.apiServiceFactory.create();
     dispatch(AppActions.pageLoadingStarted());
     try {
-      (await apiService.patchAsync(`Workouts(${id})`, item, ''));
+      (await apiService.patchAsync(`${controllerName}(${id})`, item, ''));
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -87,7 +91,7 @@ export const deleteItemAsync = (id: number) => {
     const apiService = injected.apiServiceFactory.create();
     dispatch(AppActions.pageLoadingStarted());
     try {
-      (await apiService.deleteAsync(`Workouts(${id})`, ''));
+      (await apiService.deleteAsync(`${controllerName}(${id})`, ''));
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));

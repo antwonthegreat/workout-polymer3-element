@@ -1,7 +1,9 @@
 import {AppState} from './AppState';
 import {WorkoutState} from './WorkoutState';
+import {WorkoutTypeState} from './WorkoutTypeState';
 
 export interface ApplicationState {
-  WorkoutState?: WorkoutState;
-  AppState?: AppState;
+  WorkoutReducer?: WorkoutState;
+  WorkoutTypeReducer?: WorkoutTypeState;
+  AppReducer?: AppState;
 }

@@ -10,7 +10,7 @@ const initialState = {
   list: {}
 } as WorkoutState;
 
-const reducer: Reducer<WorkoutState> = (state = initialState, action: actions.Actions) => {
+export const WorkoutReducer: Reducer<WorkoutState> = (state = initialState, action: actions.Actions) => {
   const entity = action.payload as Workout;
   const id = action.payload as number;
   switch (action.type) {
@@ -29,4 +29,3 @@ const reducer: Reducer<WorkoutState> = (state = initialState, action: actions.Ac
       return state;
   }
 };
-export {reducer as workoutReducer};

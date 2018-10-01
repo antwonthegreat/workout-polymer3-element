@@ -1,7 +1,6 @@
-import {IdMap} from '../../services/action-helpers';
 import Workout from '../Workout';
+import {ModelState} from './ModelState';
 
-export interface WorkoutState {
+export interface WorkoutState extends ModelState<Workout> {
   selectedWorkoutId: number|null;
-  list: IdMap<Workout>;
 }
