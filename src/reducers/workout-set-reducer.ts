@@ -31,7 +31,7 @@ export const WorkoutSetReducer: Reducer<WorkoutSetState> = (state = initialState
   }
 };
 
-const getItems = (state: ApplicationState): IdMap<WorkoutSet> => {
+export const getItems = (state: ApplicationState): IdMap<WorkoutSet> => {
   if (!state.WorkoutSetReducer)
     return {};
 

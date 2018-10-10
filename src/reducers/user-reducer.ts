@@ -21,7 +21,7 @@ export const UserReducer: Reducer<UserState> = (state = initialState, action: ac
   }
 };
 
-const getItems = (state: ApplicationState): IdMap<User> => {
+export const getItems = (state: ApplicationState): IdMap<User> => {
   if (!state.UserReducer)
     return {};
 

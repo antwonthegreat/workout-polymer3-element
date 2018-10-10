@@ -10,7 +10,7 @@ import {customElement, observe, property, query} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 import {afterNextRender} from '@polymer/polymer/lib/utils/render-status.js';
 
-import {Actions as AppAction} from '../../actions/app-actions';
+import {Actions as AppActions} from '../../actions/app-actions';
 import {getItemsAsync} from '../../actions/workout-type-actions';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import {adminAppReducer as AdminState} from '../../reducers/admin-app-reducer';
@@ -27,6 +27,7 @@ store.addReducers({AdminState, WorkoutTypeReducer, WorkoutReducer});
   @property() toolbarTitle: string;
   @property() route: Object;
   @property() routeData: {personId: string|null};
+  @property() page: string;
 
   @query('app-drawer') appDrawer: any;
 
@@ -43,12 +44,12 @@ store.addReducers({AdminState, WorkoutTypeReducer, WorkoutReducer});
     installMediaQueryWatcher(`(max-width: 736px)`, (matches) => this.isSmallScreen = matches);
     afterNextRender(this.$.header, async () => {
       try {
-        store.dispatch(AppAction.pageLoadingStarted());
+        store.dispatch(AppActions.pageLoadingStarted());
         await import('../../../node_modules/@polymer/app-layout/app-drawer/app-drawer.js');
       } catch (error) {
         console.warn('One or more components failed to load', error);
       }
-      store.dispatch(AppAction.pageLoadingEnded());
+      store.dispatch(AppActions.pageLoadingEnded());
       this.appDrawer.removeAttribute('unresolved');
     });
 
@@ -73,17 +74,34 @@ store.addReducers({AdminState, WorkoutTypeReducer, WorkoutReducer});
     this.toolbarTitle = state.AppReducer.title;
   }
 
-  @observe('routeData.personId')
-  routeDataPersonIdChanged(personId: string) {
+  @observe('routeData.page')
+  routeDataPersonIdChanged(page: string) {
     // Validate from URI
-    const _personId = Number(personId);
-    if (!_personId) {
-      this.set('routeData.personId', '');
+    if (['workout-list', 'muscle-groups'].indexOf(page) === -1) {
+      this.set('routeData.page', 'workout-list');
       return;
     }
 
     // Assign to a property for change tracking
-    // this.personId = Number(personId);
+    this.page = page;
+  }
+
+  @observe('page')
+  async pageChanged(page: string) {
+    if (!page)
+      return;
+
+    try {
+      switch (page) {
+        case 'workout-list':
+          store.dispatch(AppActions.pageLoadingStarted());
+          await import('./workout-list.js');
+          store.dispatch(AppActions.pageLoadingEnded());
+          break;
+      }
+    } catch (error) {
+      store.dispatch(AppActions.showFatalError('We were unable to find the page you are looking for'));
+    }
   }
 
   @observe('isSmallScreen')
@@ -106,14 +124,14 @@ store.addReducers({AdminState, WorkoutTypeReducer, WorkoutReducer});
   }
 
   private async _loadSideMenu() {
-    store.dispatch(AppAction.pageLoadingStarted());
+    store.dispatch(AppActions.pageLoadingStarted());
     try {
       // await import('../../../node_modules/@leavittsoftware/manage-side-menu/lib/manage-side-menu.js');
       this._sideMenuLoaded = true;
     } catch (error) {
       console.warn('One or more components failed to load', error);
     }
-    store.dispatch(AppAction.pageLoadingEnded());
+    store.dispatch(AppActions.pageLoadingEnded());
   }
 
   protected _toggleDrawer() {
@@ -264,16 +282,14 @@ store.addReducers({AdminState, WorkoutTypeReducer, WorkoutReducer});
   }
 </style>
 <app-location route="{{route}}"></app-location>
-<app-route route="{{route}}" pattern="/admin/:personId" data="{{routeData}}"> </app-route>
+<app-route route="{{route}}" pattern="/user/:page" data="{{routeData}}"> </app-route>
 
 <side-navigation closed$="[[!isDesktopNavigationOpen]]">
   <manage-side-menu></manage-side-menu>
 </side-navigation>
 
 <main-content>
-  <header>
-    <h1>User Page</h1>
-  </header>
+  <workout-list hidden$="[[!_isActive(mainPage, 'user')]]"></workout-list>
 </main-content>
 
 <app-header shadow fixed id="header">

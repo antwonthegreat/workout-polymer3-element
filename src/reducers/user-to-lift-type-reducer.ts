@@ -25,7 +25,7 @@ export const UserToLiftTypeReducer: Reducer<UserToLiftTypeState> = (state = init
   }
 };
 
-const getItems = (state: ApplicationState): IdMap<UserToLiftType> => {
+export const getItems = (state: ApplicationState): IdMap<UserToLiftType> => {
   if (!state.UserToLiftTypeReducer)
     return {};
 

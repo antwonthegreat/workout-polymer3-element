@@ -1,7 +1,11 @@
 import {Reducer} from 'redux';
+import {createSelector} from 'reselect';
 
 import * as actions from '../actions/workout-actions';
+import {ApplicationState} from '../model/state/ApplicationState';
 import {WorkoutState} from '../model/state/WorkoutState';
+import Workout from '../model/Workout';
+import {IdMap} from '../services/action-helpers';
 
 const initialState = {
   selectedId: null,
@@ -26,3 +30,14 @@ export const WorkoutReducer: Reducer<WorkoutState> = (state = initialState, acti
       return state;
   }
 };
+
+export const getItems = (state: ApplicationState): IdMap<Workout> => {
+  if (!state.WorkoutReducer)
+    return {};
+
+  return state.WorkoutReducer.list;
+};
+
+export const itemsSelector = createSelector(getItems, (items: IdMap<Workout>): Array<Workout> => {
+  return Object.values(items);
+});

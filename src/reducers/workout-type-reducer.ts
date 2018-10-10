@@ -32,7 +32,7 @@ export const WorkoutTypeReducer: Reducer<WorkoutTypeState> = (state = initialSta
   }
 };
 
-const getItems = (state: ApplicationState): IdMap<WorkoutType> => {
+export const getItems = (state: ApplicationState): IdMap<WorkoutType> => {
   if (!state.WorkoutTypeReducer)
     return {};
 

@@ -27,7 +27,7 @@ export const LiftReducer: Reducer<LiftState> = (state = initialState, action: ac
   }
 };
 
-const getItems = (state: ApplicationState): IdMap<Lift> => {
+export const getItems = (state: ApplicationState): IdMap<Lift> => {
   if (!state.LiftReducer)
     return {};
 
