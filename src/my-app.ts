@@ -74,6 +74,11 @@ import {store} from './store';
     this.snackbarErrorMessage = state.AppReducer.snackbarErrorMessage;
     this.isLoading = state.AppReducer.loadingCounter > 0;
     document.title = state.AppReducer.title;
+    if (state.AppReducer.navigateTo) {
+      const page = state.AppReducer.navigateTo;
+      store.dispatch(Actions.navigate(null));
+      this.set('route.path', page);
+    }
   }
 
   @observe('mainPage')

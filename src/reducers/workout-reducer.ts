@@ -26,6 +26,8 @@ export const WorkoutReducer: Reducer<WorkoutState> = (state = initialState, acti
       // destructuring black magic
       const {[action.payload]: value, ...updatedItems} = state.list;
       return {...state, list: updatedItems as any};
+    case actions.ENTITY_SELECTED:
+      return {...state, selectedId: action.payload};
     default:
       return state;
   }
@@ -38,6 +40,17 @@ export const getItems = (state: ApplicationState): IdMap<Workout> => {
   return state.WorkoutReducer.list;
 };
 
+export const getSelectedId = (state: ApplicationState): null|number => {
+  if (!state.WorkoutReducer || !state.WorkoutReducer.selectedId)
+    return null;
+
+  return state.WorkoutReducer.selectedId;
+};
+
 export const itemsSelector = createSelector(getItems, (items: IdMap<Workout>): Array<Workout> => {
-  return Object.values(items);
+  return Object.values(items).sort((a, b) => new Date(b.StartDate).getTime() - new Date(a.StartDate).getTime());
+});
+
+export const selectedItemSelector = createSelector(getItems, getSelectedId, (items: IdMap<Workout>, selectedId: number): Workout|null => {
+  return selectedId ? items[selectedId] : null;
 });

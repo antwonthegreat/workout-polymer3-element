@@ -16,12 +16,14 @@ export const ENTITY_CREATED = 'WORKOUT_CREATED';
 export const ENTITY_UPDATED = 'WORKOUT_UPDATED';
 export const ENTITY_DELETED = 'WORKOUT_DELETED';
 export const ENTITIES_RECEIVED = 'WORKOUTS_RECEIVED';
+export const ENTITY_SELECTED = 'WORKOUT_SELECTED';
 
 export const Actions = {
   entityCreated: (entity: EntityType) => createAction(ENTITY_CREATED, entity),
   entityDeleted: (id: number) => createAction(ENTITY_DELETED, id),
   entitiesReceived: (message: IdMap<EntityType>) => createAction(ENTITIES_RECEIVED, message),
   entityUpdated: (entity: Partial<EntityType>) => createAction(ENTITY_UPDATED, entity),
+  entitySelected: (id: number) => createAction(ENTITY_SELECTED, id),
 };
 
 export const getItemsAsync = () => {
@@ -30,7 +32,7 @@ export const getItemsAsync = () => {
     let items: StringMap<EntityType>;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = toDictionary((await apiService.getAsync<EntityType>(`Workouts?$select=Name,Id,StartDate&$expand=WorkoutType($select=Name),Lifts($expand=LiftType($select=Name))&$orderby=StartDate`, '')).toList());
+      items = toDictionary((await apiService.getAsync<EntityType>(`Workouts?$select=Name,Id,StartDate&$expand=Lifts($expand=LiftType($select=Name))&$orderby=StartDate desc&$top=50`, '')).toList());
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -42,6 +44,33 @@ export const getItemsAsync = () => {
       return;
     }
     dispatch(Actions.entitiesReceived(items));
+  };
+};
+
+export const getItemIfNeededAsync = (id: number) => {
+  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, getState: () => ApplicationState, injected: ActionInjectable) => {
+    const state = getState();
+    if (state.WorkoutReducer && state.WorkoutReducer.list[id] && (state.WorkoutReducer.list[id].Lifts.length === 0 || state.WorkoutReducer.list[id].Lifts[0].WorkoutSets)) {
+      dispatch(AppActions.navigate(`/user/workout/${id}`));
+      return;
+    }
+    const apiService = injected.apiServiceFactory.create();
+    let item: EntityType|null;
+    dispatch(AppActions.pageLoadingStarted());
+    try {
+      item = (await apiService.getAsync<EntityType>(`Workouts?$filter=Id eq ${id}&$select=Name,Id,StartDate&$expand=Lifts($expand=LiftType($select=Name))&$top=1`, '')).firstOrDefault();
+    } catch (error) {
+      dispatch(AppActions.pageLoadingEnded());
+      dispatch(AppActions.setSnackbarErrorMessage(error));
+      return;
+    }
+    dispatch(AppActions.pageLoadingEnded());
+    if (!item) {
+      dispatch(AppActions.setSnackbarErrorMessage(`Error Getting ${entityName}`));
+      return;
+    }
+    dispatch(Actions.entityUpdated({...item, Id: id}));
+    dispatch(AppActions.navigate(`/user/workout/${id}`));
   };
 };
 
@@ -63,6 +92,7 @@ export const createItemAsync = (item: Partial<EntityType>) => {
       return;
     }
     dispatch(Actions.entityCreated(createdItem));
+    dispatch(getItemIfNeededAsync(createdItem.Id));
   };
 };
 

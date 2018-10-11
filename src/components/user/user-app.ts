@@ -75,9 +75,9 @@ store.addReducers({AdminState, WorkoutTypeReducer, WorkoutReducer});
   }
 
   @observe('routeData.page')
-  routeDataPersonIdChanged(page: string) {
+  routeDataPageChanged(page: string) {
     // Validate from URI
-    if (['workout-list', 'muscle-groups'].indexOf(page) === -1) {
+    if (['workout-list', 'muscle-groups', 'workout'].indexOf(page) === -1) {
       this.set('routeData.page', 'workout-list');
       return;
     }
@@ -90,12 +90,16 @@ store.addReducers({AdminState, WorkoutTypeReducer, WorkoutReducer});
   async pageChanged(page: string) {
     if (!page)
       return;
-
     try {
       switch (page) {
         case 'workout-list':
           store.dispatch(AppActions.pageLoadingStarted());
           await import('./workout-list.js');
+          store.dispatch(AppActions.pageLoadingEnded());
+          break;
+        case 'workout':
+          store.dispatch(AppActions.pageLoadingStarted());
+          await import('./workout-view.js');
           store.dispatch(AppActions.pageLoadingEnded());
           break;
       }
@@ -159,6 +163,10 @@ store.addReducers({AdminState, WorkoutTypeReducer, WorkoutReducer});
       this.userSettingDrawerClosed = false;
       this.isDesktopNavigationOpen = true;
     }
+  }
+
+  protected _isActive(page: string, value: string) {
+    return page === value;
   }
 
   static get template() {
@@ -289,7 +297,8 @@ store.addReducers({AdminState, WorkoutTypeReducer, WorkoutReducer});
 </side-navigation>
 
 <main-content>
-  <workout-list hidden$="[[!_isActive(mainPage, 'user')]]"></workout-list>
+  <workout-list hidden$="[[!_isActive(page, 'workout-list')]]"></workout-list>
+  <workout-view hidden$="[[!_isActive(page, 'workout')]]"></workout-view>
 </main-content>
 
 <app-header shadow fixed id="header">

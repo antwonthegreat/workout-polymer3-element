@@ -5,4 +5,5 @@ export interface AppState {
   fatalErrorMessage;
   snackbarErrorMessage;
   userId: number;
+  navigateTo: string|null;
 }
