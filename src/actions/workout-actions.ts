@@ -91,6 +91,7 @@ export const createItemAsync = (item: Partial<EntityType>) => {
       dispatch(AppActions.setSnackbarErrorMessage(`Error Creating ${entityName}`));
       return;
     }
+    createdItem.Lifts = [];
     dispatch(Actions.entityCreated(createdItem));
     dispatch(getItemIfNeededAsync(createdItem.Id));
   };
