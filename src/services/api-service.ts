@@ -5,6 +5,7 @@ import {IApiService} from './i-api-service';
 
 export default class ApiService implements IApiService {
   baseUrl: string = 'http://localhost:59465/';
+  // TODO: remove default once authorization works
   userId = 1;
 
   private _createUri(urlPath: string): string {
