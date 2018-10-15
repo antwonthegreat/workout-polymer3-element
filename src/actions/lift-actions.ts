@@ -62,6 +62,7 @@ export const createItemAsync = (item: Partial<EntityType>) => {
       dispatch(AppActions.setSnackbarErrorMessage(`Error Creating ${entityName}`));
       return;
     }
+    createdItem.WorkoutSets = [];
     dispatch(Actions.entityCreated(createdItem));
   };
 };
