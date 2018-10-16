@@ -6,6 +6,7 @@ import {ActionInjectable} from '../model/ActionInjectable';
 import Lift from '../model/Lift';
 import {ApplicationState} from '../model/state/ApplicationState';
 import {IdMap, toDictionary} from '../services/action-helpers';
+import {} from '../reducers/lift-type-reducer';
 
 import {Actions as AppActions} from './app-actions';
 
