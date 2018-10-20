@@ -35,13 +35,15 @@ export const getItemsAsync = () => {
     let items: StringMap<EntityType>;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = toDictionary((await apiService.getAsync<EntityType>(`${controllerName}?$select=Name,Id
+      items = toDictionary((await apiService.getAsync<EntityType>(
+                                `${controllerName}?$select=Name,Id
       &$expand=
         LiftTypes($select=Name,Timed,WorkoutTypeId;$expand=
           UserToLiftTypes($select=UserId;$filter=UserId eq ${userId}))
           ,Lifts($orderby=StartDate desc,$top=1)
-        ,UserToWorkoutTypes($select=Id,LastCompletedDate;$filter=UserId eq ${userId})`, ''))
-      .toList());
+        ,UserToWorkoutTypes($select=Id,WorkoutTypeId,LastCompletedDate;$filter=UserId eq ${userId})`,
+                                ''))
+                               .toList());
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));

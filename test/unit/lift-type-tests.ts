@@ -4,7 +4,7 @@ import sinon from 'sinon';
 
 // import {WorkoutTypeState} from '../../src/model/state/WorkoutTypeState';
 import LiftType from '../../src/model/LiftType';
-import {activeIncompleteItemsSelector, LiftTypeReducer} from '../../src/reducers/lift-type-reducer';
+import {activeIncompleteItemSelector, LiftTypeReducer} from '../../src/reducers/lift-type-reducer';
 // import {ApiServiceFactory} from '../../src/services/api-service-factory';
 // import {BaseMockApiService} from '../../src/services/base-mock-api-service';
 import {createTestStore} from '../../src/testStore';
@@ -29,7 +29,7 @@ describe('lift type tests', () => {
     // Act
 
     // Assert
-    const result = activeIncompleteItemsSelector(store.getState(), 1);
+    const result = activeIncompleteItemSelector(store.getState(), 1);
     expect(result).to.deep.equal(null);
   });
 
@@ -48,7 +48,7 @@ describe('lift type tests', () => {
     // Act
 
     // Assert
-    const result = activeIncompleteItemsSelector(store.getState(), 2);
+    const result = activeIncompleteItemSelector(store.getState(), 2);
     expect(result).to.deep.equal(null);
   });
 
@@ -73,7 +73,7 @@ describe('lift type tests', () => {
     // Act
 
     // Assert
-    const result = activeIncompleteItemsSelector(store.getState(), 1);
+    const result = activeIncompleteItemSelector(store.getState(), 1);
     expect(result).to.not.deep.equal(null);
   });
 
@@ -92,18 +92,17 @@ describe('lift type tests', () => {
         },
         selectedId: null
       },
-      WorkoutTypeReducer: {
-        list: {
-          1: {UserToWorkoutTypes: [{LastCompletedDate: '2010-01-01'}]} as any
-        },
-        selectedId: null
+      UserToWorkoutTypeReducer: {
+        listByWorkoutTypeId: {
+          1: {LastCompletedDate: '2010-01-01'} as any
+        }
       }
     });
 
     // Act
 
     // Assert
-    const result = activeIncompleteItemsSelector(store.getState(), 1) as LiftType;
+    const result = activeIncompleteItemSelector(store.getState(), 1) as LiftType;
     expect(result.Id).to.deep.equal(5);
   });
 
@@ -122,18 +121,17 @@ describe('lift type tests', () => {
         },
         selectedId: null
       },
-      WorkoutTypeReducer: {
-        list: {
-          1: {UserToWorkoutTypes: [{LastCompletedDate: '2010-01-01'}]} as any
-        },
-        selectedId: null
+      UserToWorkoutTypeReducer: {
+        listByWorkoutTypeId: {
+          1: {LastCompletedDate: '2010-01-01'} as any
+        }
       }
     });
 
     // Act
 
     // Assert
-    const result = activeIncompleteItemsSelector(store.getState(), 1) as LiftType;
+    const result = activeIncompleteItemSelector(store.getState(), 1) as LiftType;
     expect(result.Id).to.deep.equal(5);
   });
 });

@@ -6,20 +6,21 @@ import {ActionInjectable} from '../model/ActionInjectable';
 import Lift from '../model/Lift';
 import {ApplicationState} from '../model/state/ApplicationState';
 import {IdMap, toDictionary} from '../services/action-helpers';
-import {} from '../reducers/lift-type-reducer';
 
 import {Actions as AppActions} from './app-actions';
+import {Actions as LiftTypeActions} from './lift-type-actions';
+import {updateLastCompletedDateAsync} from './user-to-workout-type-actions';
 
 type EntityType = Lift;
 const entityName = 'Lift';
 const controllerName = 'Lifts';
 
-export const ENTITY_CREATED = 'LIFT_CREATED';
+export const LIFT_CREATED = 'LIFT_CREATED';
 export const ENTITY_DELETED = 'LIFT_DELETED';
 export const ENTITIES_RECEIVED = 'LIFTS_RECEIVED';
 
 export const Actions = {
-  entityCreated: (entity: EntityType) => createAction(ENTITY_CREATED, entity),
+  entityCreated: (entity: EntityType) => createAction(LIFT_CREATED, entity),
   entityDeleted: (id: number) => createAction(ENTITY_DELETED, id),
   entitiesReceived: (message: IdMap<EntityType>) => createAction(ENTITIES_RECEIVED, message)
 };
@@ -47,7 +48,7 @@ export const getItemsAsync = () => {
 };
 
 export const createItemAsync = (item: Partial<EntityType>) => {
-  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
+  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
     let createdItem: EntityType|null;
     dispatch(AppActions.pageLoadingStarted());
@@ -64,6 +65,16 @@ export const createItemAsync = (item: Partial<EntityType>) => {
       return;
     }
     createdItem.WorkoutSets = [];
+    const state = getState();
+    const liftType = state.LiftTypeReducer && state.LiftTypeReducer.list && state.LiftTypeReducer.list[createdItem.LiftTypeId];
+    if (liftType) {
+      dispatch(LiftTypeActions.entityUpdated(liftType));
+      dispatch(updateLastCompletedDateAsync(liftType.WorkoutTypeId));
+    }
+    // check incomplete lts, update wt completed if necceccary
+
+    // test user to lift type added
+    // test user to lift ftype deleted
     dispatch(Actions.entityCreated(createdItem));
   };
 };

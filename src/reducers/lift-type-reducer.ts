@@ -7,6 +7,8 @@ import {ApplicationState} from '../model/state/ApplicationState';
 import {LiftTypeState} from '../model/state/LiftTypeState';
 import {IdMap} from '../services/action-helpers';
 
+import {itemsByWorkoutTypesSelector} from './user-to-workout-type-reducer';
+
 const initialState = {
   selectedId: null,
   list: {}
@@ -40,15 +42,6 @@ export const activeItemsSelector = createSelector(itemsSelector, (items: Array<L
   return items.filter(liftType => liftType.UserToLiftTypes && liftType.UserToLiftTypes.length > 0);
 });
 
-const getLastWorkoutTypeCompletedDate = (state: ApplicationState, workoutTypeId: number): Date|null => {
-  const workoutTypeList = state.WorkoutTypeReducer  ? state.WorkoutTypeReducer.list : {};
-  const workoutType = workoutTypeList[workoutTypeId];
-  if (!workoutType)
-    return null;
-  const lastCompletedDate = workoutType.UserToWorkoutTypes && workoutType.UserToWorkoutTypes.length ? workoutType.UserToWorkoutTypes[0].LastCompletedDate  : null;
-  return lastCompletedDate ? new Date(lastCompletedDate) : null;
-};
-
 const getLastLiftTypeCompletedDate = (liftType: LiftType): Date|null => {
   const lastLift = liftType.Lifts && liftType.Lifts.length && liftType.Lifts[0];
   if (!lastLift)
@@ -56,17 +49,18 @@ const getLastLiftTypeCompletedDate = (liftType: LiftType): Date|null => {
   return new Date(lastLift.StartDate);
 };
 
-export const activeIncompleteItemsSelector = (state: ApplicationState, workoutTypeId: number | null): LiftType|null =>  {
-  const items = state.LiftTypeReducer  ? state.LiftTypeReducer.list : {};
+export const getActiveItems = (state: ApplicationState, workoutTypeId: number|null): Array<LiftType> => {
+  const items = state.LiftTypeReducer ? state.LiftTypeReducer.list : {};
 
-  const allActiveItems = Object.values(items).filter(liftType =>
-    liftType.UserToLiftTypes &&
-    liftType.UserToLiftTypes.length > 0
-    && (!workoutTypeId || liftType.WorkoutTypeId === workoutTypeId)
-  );
+  return Object.values(items).filter(liftType => liftType.UserToLiftTypes && liftType.UserToLiftTypes.length > 0 && (!workoutTypeId || liftType.WorkoutTypeId === workoutTypeId));
+};
 
-  let incompleteActiveItems = allActiveItems.filter(liftType => {
-    const workoutTypeLastCompletedDate = getLastWorkoutTypeCompletedDate(state, liftType.WorkoutTypeId);
+export const getIncompleteActiveItems = (state: ApplicationState, workoutTypeId: number|null): Array<LiftType> => {
+  const allActiveItems = getActiveItems(state, workoutTypeId);
+
+  return allActiveItems.filter(liftType => {
+    const userToWorkoutType = itemsByWorkoutTypesSelector(state)[liftType.WorkoutTypeId];
+    const workoutTypeLastCompletedDate = userToWorkoutType && userToWorkoutType.LastCompletedDate && new Date(userToWorkoutType.LastCompletedDate) || null;
     const liftTypeLastCompletedDate = getLastLiftTypeCompletedDate(liftType);
 
     if (!workoutTypeLastCompletedDate || !liftTypeLastCompletedDate)
@@ -74,12 +68,16 @@ export const activeIncompleteItemsSelector = (state: ApplicationState, workoutTy
 
     return workoutTypeLastCompletedDate.getTime() > liftTypeLastCompletedDate.getTime();
   });
+};
+
+export const activeIncompleteItemSelector = (state: ApplicationState, workoutTypeId: number|null): LiftType|null => {
+  let incompleteActiveItems = getIncompleteActiveItems(state, workoutTypeId);
 
   if (incompleteActiveItems.length < 1)
-    incompleteActiveItems = allActiveItems;
+    incompleteActiveItems = getActiveItems(state, workoutTypeId);
 
   if (incompleteActiveItems.length < 1)
-    return null; //Not enough active liftTypes to generate numberOfItems
+    return null;  // Not enough active liftTypes to generate numberOfItems
 
   const index = Math.floor(Math.random() * (incompleteActiveItems.length));
   const item: LiftType = incompleteActiveItems[index];

@@ -16,7 +16,7 @@ export const WorkoutReducer: Reducer<WorkoutState> = (state = initialState, acti
   switch (action.type) {
     case actions.ENTITIES_RECEIVED:
       return {...state, list: action.payload};
-    case actions.ENTITY_CREATED:
+    case actions.WORKOUT_CREATED:
       return {...state, list: {...state.list, [action.payload.Id]: action.payload}};
     case actions.ENTITY_UPDATED:
       if (!action.payload.Id)

@@ -12,14 +12,14 @@ import {Actions as AppActions} from './app-actions';
 type EntityType = Workout;
 const entityName = 'Workout';
 
-export const ENTITY_CREATED = 'WORKOUT_CREATED';
+export const WORKOUT_CREATED = 'WORKOUT_CREATED';
 export const ENTITY_UPDATED = 'WORKOUT_UPDATED';
 export const ENTITY_DELETED = 'WORKOUT_DELETED';
 export const ENTITIES_RECEIVED = 'WORKOUTS_RECEIVED';
 export const ENTITY_SELECTED = 'WORKOUT_SELECTED';
 
 export const Actions = {
-  entityCreated: (entity: EntityType) => createAction(ENTITY_CREATED, entity),
+  entityCreated: (entity: EntityType) => createAction(WORKOUT_CREATED, entity),
   entityDeleted: (id: number) => createAction(ENTITY_DELETED, id),
   entitiesReceived: (message: IdMap<EntityType>) => createAction(ENTITIES_RECEIVED, message),
   entityUpdated: (entity: Partial<EntityType>) => createAction(ENTITY_UPDATED, entity),

@@ -16,7 +16,7 @@ export const LiftReducer: Reducer<LiftState> = (state = initialState, action: ac
   switch (action.type) {
     case actions.ENTITIES_RECEIVED:
       return {...state, list: action.payload};
-    case actions.ENTITY_CREATED:
+    case actions.LIFT_CREATED:
       return {...state, list: {...state.list, [action.payload.Id]: action.payload}};
     case actions.ENTITY_DELETED:
       // destructuring black magic
