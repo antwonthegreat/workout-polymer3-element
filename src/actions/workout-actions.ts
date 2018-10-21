@@ -1,13 +1,14 @@
 import {Action, ActionsUnion, createAction} from '@leavittsoftware/titanium-elements/lib/titanium-redux-action-helpers';
-import {StringMap} from '@leavittsoftware/titanium-elements/lib/titanium-types';
 import {ThunkDispatch} from 'redux-thunk';
 
 import {ActionInjectable} from '../model/ActionInjectable';
+import Lift from '../model/Lift';
 import {ApplicationState} from '../model/state/ApplicationState';
 import Workout from '../model/Workout';
-import {IdMap, toDictionary} from '../services/action-helpers';
+import {IdMap} from '../services/action-helpers';
 
 import {Actions as AppActions} from './app-actions';
+import {Actions as LiftActions} from './lift-actions';
 
 type EntityType = Workout;
 const entityName = 'Workout';
@@ -29,10 +30,10 @@ export const Actions = {
 export const getItemsAsync = () => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
-    let items: StringMap<EntityType>;
+    let items: Array<EntityType>;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = toDictionary((await apiService.getAsync<EntityType>(`Workouts?$select=Name,Id,StartDate&$expand=Lifts($expand=LiftType($select=Name))&$orderby=StartDate desc&$top=50`, '')).toList());
+      items = (await apiService.getAsync<EntityType>(`Workouts?$select=Name,Id,StartDate&$expand=Lifts&$orderby=StartDate desc&$top=50`, '')).toList();
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -43,14 +44,25 @@ export const getItemsAsync = () => {
       dispatch(AppActions.setSnackbarErrorMessage(`Error Getting ${entityName}s`));
       return;
     }
-    dispatch(Actions.entitiesReceived(items));
+    const lifts: IdMap<Lift> = {};
+    const workouts: IdMap<Workout> = {};
+    items.forEach(workout => {
+      workout.Lifts.forEach(lift => {
+        lifts[lift.Id] = lift;
+      });
+      const strippedWorkout = {...workout};
+      strippedWorkout.Lifts = [];
+      workouts[strippedWorkout.Id] = strippedWorkout;
+    });
+    dispatch(Actions.entitiesReceived(workouts));
+    dispatch(LiftActions.entitiesReceived(lifts));
   };
 };
 
-export const getItemIfNeededAsync = (id: number) => {
+export const getItemExpandedIfNeededAsync = (id: number) => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, getState: () => ApplicationState, injected: ActionInjectable) => {
     const state = getState();
-    if (state.WorkoutReducer && state.WorkoutReducer.list[id] && (state.WorkoutReducer.list[id].Lifts.length === 0 || state.WorkoutReducer.list[id].Lifts[0].WorkoutSets)) {
+    if (state.WorkoutReducer && state.WorkoutReducer.list[id] && state.WorkoutReducer.list[id].expanded) {
       dispatch(AppActions.navigate(`/user/workout/${id}`));
       return;
     }
@@ -58,7 +70,7 @@ export const getItemIfNeededAsync = (id: number) => {
     let item: EntityType|null;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      item = (await apiService.getAsync<EntityType>(`Workouts?$filter=Id eq ${id}&$select=Name,Id,StartDate&$expand=Lifts($expand=LiftType($select=Name))&$top=1`, '')).firstOrDefault();
+      item = (await apiService.getAsync<EntityType>(`Workouts?$filter=Id eq ${id}&$select=Name,Id,StartDate&$expand=Lifts($expand=WorkoutSets)&$top=1`, '')).firstOrDefault();
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -69,7 +81,15 @@ export const getItemIfNeededAsync = (id: number) => {
       dispatch(AppActions.setSnackbarErrorMessage(`Error Getting ${entityName}`));
       return;
     }
-    dispatch(Actions.entityUpdated({...item, Id: id}));
+    const lifts: IdMap<Lift> = {};
+    item.Lifts.forEach(lift => {
+      lifts[lift.Id] = lift;
+    });
+    const strippedWorkout = {...item};
+    strippedWorkout.Lifts = [];
+
+    dispatch(LiftActions.entitiesReceived(lifts));
+    dispatch(Actions.entityUpdated({...item, Id: id, expanded: true}));
     dispatch(AppActions.navigate(`/user/workout/${id}`));
   };
 };
@@ -93,7 +113,7 @@ export const createItemAsync = (item: Partial<EntityType>) => {
     }
     createdItem.Lifts = [];
     dispatch(Actions.entityCreated(createdItem));
-    dispatch(getItemIfNeededAsync(createdItem.Id));
+    dispatch(getItemExpandedIfNeededAsync(createdItem.Id));
   };
 };
 

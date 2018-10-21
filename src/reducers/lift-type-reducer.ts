@@ -7,6 +7,7 @@ import {ApplicationState} from '../model/state/ApplicationState';
 import {LiftTypeState} from '../model/state/LiftTypeState';
 import {IdMap} from '../services/action-helpers';
 
+import {getLastLiftCompletedDate} from './lift-reducer';
 import {itemsByWorkoutTypesSelector} from './user-to-workout-type-reducer';
 
 const initialState = {
@@ -16,6 +17,9 @@ const initialState = {
 
 export const LiftTypeReducer: Reducer<LiftTypeState> = (state = initialState, action: actions.Actions) => {
   switch (action.type) {
+    case actions.ENTITIES_RECEIVED:
+      const list = action.payload as IdMap<LiftType>;
+      return {...state, list: {...state.list, ...list}};
     case actions.ENTITY_CREATED:
       return {...state, list: {...state.list, [action.payload.Id]: action.payload}};
     case actions.ENTITY_UPDATED:
@@ -42,13 +46,6 @@ export const activeItemsSelector = createSelector(itemsSelector, (items: Array<L
   return items.filter(liftType => liftType.UserToLiftTypes && liftType.UserToLiftTypes.length > 0);
 });
 
-const getLastLiftTypeCompletedDate = (liftType: LiftType): Date|null => {
-  const lastLift = liftType.Lifts && liftType.Lifts.length && liftType.Lifts[0];
-  if (!lastLift)
-    return null;
-  return new Date(lastLift.StartDate);
-};
-
 export const getActiveItems = (state: ApplicationState, workoutTypeId: number|null): Array<LiftType> => {
   const items = state.LiftTypeReducer ? state.LiftTypeReducer.list : {};
 
@@ -61,7 +58,7 @@ export const getIncompleteActiveItems = (state: ApplicationState, workoutTypeId:
   return allActiveItems.filter(liftType => {
     const userToWorkoutType = itemsByWorkoutTypesSelector(state)[liftType.WorkoutTypeId];
     const workoutTypeLastCompletedDate = userToWorkoutType && userToWorkoutType.LastCompletedDate && new Date(userToWorkoutType.LastCompletedDate) || null;
-    const liftTypeLastCompletedDate = getLastLiftTypeCompletedDate(liftType);
+    const liftTypeLastCompletedDate = getLastLiftCompletedDate(state, liftType.Id);
 
     if (!workoutTypeLastCompletedDate || !liftTypeLastCompletedDate)
       return true;

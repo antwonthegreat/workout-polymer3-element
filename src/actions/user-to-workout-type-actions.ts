@@ -6,7 +6,7 @@ import {ActionInjectable} from '../model/ActionInjectable';
 import {ApplicationState} from '../model/state/ApplicationState';
 import UserToWorkoutType from '../model/UserToWorkoutType';
 import {activeIncompleteItemSelector} from '../reducers/lift-type-reducer';
-// import {IdMap, toDictionary} from '../services/action-helpers';
+import {IdMap} from '../services/action-helpers';
 
 import {Actions as AppActions} from './app-actions';
 
@@ -16,11 +16,13 @@ const controllerName = 'UserToWorkoutTypes';
 
 export const ENTITY_CREATED = 'USER_TO_WORKOUT_TYPE_CREATED';
 export const ENTITY_DELETED = 'USER_TO_WORKOUT_TYPE_DELETED';
-export const ENTITY_UPDATED = 'USER_TO_WORKOUT_TYPE_WORKOUT_UPDATED';
+export const ENTITY_UPDATED = 'USER_TO_WORKOUT_TYPE_UPDATED';
+export const ENTITIES_RECEIVED = 'USER_TO_WORKOUT_TYPES_RECEIVED';
 
 export const Actions = {
   entityCreated: (entity: EntityType) => createAction(ENTITY_CREATED, entity),
   entityDeleted: (workoutTypeId: number) => createAction(ENTITY_DELETED, workoutTypeId),
+  entitiesReceived: (message: IdMap<EntityType>) => createAction(ENTITIES_RECEIVED, message),
   entityUpdated: (entity: Partial<EntityType>) => createAction(ENTITY_UPDATED, entity)
 };
 
@@ -65,17 +67,33 @@ export const deleteItemAsync = (workoutTypeId: number) => {
   };
 };
 
+export const updateItemAsync = (id: number, item: Partial<EntityType>) => {
+  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
+    const apiService = injected.apiServiceFactory.create();
+    dispatch(AppActions.pageLoadingStarted());
+    try {
+      (await apiService.patchAsync(`${controllerName}(${id})`, item, ''));
+    } catch (error) {
+      dispatch(AppActions.pageLoadingEnded());
+      dispatch(AppActions.setSnackbarErrorMessage(error));
+      return;
+    }
+    dispatch(AppActions.pageLoadingEnded());
+    dispatch(Actions.entityUpdated({...item, Id: id}));
+  };
+};
+
 export const updateLastCompletedDateAsync = (workoutTypeId: number) => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, getState: () => ApplicationState, _injected: ActionInjectable) => {
     const state = getState();
     const item = state.UserToWorkoutTypeReducer && state.UserToWorkoutTypeReducer.listByWorkoutTypeId && state.UserToWorkoutTypeReducer.listByWorkoutTypeId[workoutTypeId];
     if (activeIncompleteItemSelector(state, workoutTypeId) == null) {
       if (item) {
-        let { WorkoutType, User, ...delta } = item;
+        let {WorkoutType, User, ...delta} = item;
         delta.LastCompletedDate = new Date().toISOString();
-        dispatch(Actions.entityUpdated(delta));
+        dispatch(updateItemAsync(delta.Id, delta));
       } else {
-        dispatch(createItemAsync({ WorkoutTypeId: workoutTypeId, LastCompletedDate: new Date().toISOString()}));
+        dispatch(createItemAsync({WorkoutTypeId: workoutTypeId, LastCompletedDate: new Date().toISOString()}));
       }
     }
   };

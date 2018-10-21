@@ -15,7 +15,7 @@ const initialState = {
 export const UserReducer: Reducer<UserState> = (state = initialState, action: actions.Actions) => {
   switch (action.type) {
     case actions.ENTITIES_RECEIVED:
-      return {...state, list: action.payload};
+      return {...state, list: {...state.list, ...action.payload}};
     default:
       return state;
   }

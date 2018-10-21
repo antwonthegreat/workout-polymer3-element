@@ -1,15 +1,16 @@
 import {Action, ActionsUnion, createAction} from '@leavittsoftware/titanium-elements/lib/titanium-redux-action-helpers';
-import {StringMap} from '@leavittsoftware/titanium-elements/lib/titanium-types';
 import {ThunkDispatch} from 'redux-thunk';
 
 import {ActionInjectable} from '../model/ActionInjectable';
 import Lift from '../model/Lift';
 import {ApplicationState} from '../model/state/ApplicationState';
-import {IdMap, toDictionary} from '../services/action-helpers';
+import WorkoutSet from '../model/WorkoutSet';
+import {IdMap} from '../services/action-helpers';
 
 import {Actions as AppActions} from './app-actions';
 import {Actions as LiftTypeActions} from './lift-type-actions';
 import {updateLastCompletedDateAsync} from './user-to-workout-type-actions';
+import {Actions as WorkoutSetActions} from './workout-set-actions';
 
 type EntityType = Lift;
 const entityName = 'Lift';
@@ -29,10 +30,10 @@ export const getItemsAsync = () => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
 
-    let items: StringMap<EntityType>;
+    let items: Array<EntityType>;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = toDictionary((await apiService.getAsync<EntityType>(`${controllerName}?$select=LiftTypeId,Id,StartDate,WorkoutId&$expand=WorkoutSets($select=Reps,Weight)`, '')).toList());
+      items = (await apiService.getAsync<EntityType>(`${controllerName}?$select=LiftTypeId,Id,StartDate,WorkoutId&$expand=WorkoutSets($select=Reps,Weight)`, '')).toList();
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -43,7 +44,18 @@ export const getItemsAsync = () => {
       dispatch(AppActions.setSnackbarErrorMessage(`Error Getting ${entityName}s`));
       return;
     }
-    dispatch(Actions.entitiesReceived(items));
+    const lifts: IdMap<Lift> = {};
+    const workoutSets: IdMap<WorkoutSet> = {};
+    items.forEach(lift => {
+      lift.WorkoutSets.forEach(workoutSet => {
+        workoutSets[workoutSet.Id] = workoutSet;
+      });
+      const strippedLift = {...lift};
+      strippedLift.WorkoutSets = [];
+      lifts[strippedLift.Id] = strippedLift;
+    });
+    dispatch(Actions.entitiesReceived(lifts));
+    dispatch(WorkoutSetActions.entitiesReceived(workoutSets));
   };
 };
 

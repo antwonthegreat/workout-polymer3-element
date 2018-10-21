@@ -15,7 +15,7 @@ const initialState = {
 export const WorkoutSetReducer: Reducer<WorkoutSetState> = (state = initialState, action: actions.Actions) => {
   switch (action.type) {
     case actions.ENTITIES_RECEIVED:
-      return {...state, list: action.payload};
+      return {...state, list: {...state.list, ...action.payload}};
     case actions.ENTITY_CREATED:
       return {...state, list: {...state.list, [action.payload.Id]: action.payload}};
     case actions.ENTITY_UPDATED:

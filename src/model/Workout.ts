@@ -15,4 +15,6 @@ export default interface Workout extends ODataDto {
   UserId: number;
 
   Lifts: Array<Lift>;
+
+  expanded?: boolean;
 }

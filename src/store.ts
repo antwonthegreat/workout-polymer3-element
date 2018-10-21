@@ -4,6 +4,14 @@ import thunk from 'redux-thunk';
 
 import {ApplicationState} from './model/state/ApplicationState';
 import {AppReducer} from './reducers/app-reducer';
+import {LiftReducer} from './reducers/lift-reducer';
+import {LiftTypeReducer} from './reducers/lift-type-reducer';
+import {UserReducer} from './reducers/user-reducer';
+import {UserToLiftTypeReducer} from './reducers/user-to-lift-type-reducer';
+import {UserToWorkoutTypeReducer} from './reducers/user-to-workout-type-reducer';
+import {WorkoutReducer} from './reducers/workout-reducer';
+import {WorkoutSetReducer} from './reducers/workout-set-reducer';
+import {WorkoutTypeReducer} from './reducers/workout-type-reducer';
 import {ApiServiceFactory} from './services/api-service-factory';
 import {HttpApiServiceFactory} from './services/http-api-service-factory';
 
@@ -18,8 +26,7 @@ const compose = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || origComp
 export const store = createStore((state: ApplicationState, _action: any) => state, {}, compose(lazyReducerEnhancer(combineReducers), applyMiddleware<ApiServiceFactory>(thunk.withExtraArgument({apiServiceFactory: new HttpApiServiceFactory()})))) as LazyReducerEnhancerStore;
 
 // Initially loaded reducers.
-store.addReducers({AppReducer});
-
+store.addReducers({AppReducer, LiftReducer, LiftTypeReducer, WorkoutReducer, WorkoutTypeReducer, UserToLiftTypeReducer, UserToWorkoutTypeReducer, UserReducer, WorkoutSetReducer});
 store.subscribe(() => {
   store.getState() as ApplicationState;
 });

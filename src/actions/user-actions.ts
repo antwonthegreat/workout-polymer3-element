@@ -22,13 +22,11 @@ export const Actions = {
 export const getItemsAsync = () => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
-    const appState = _getState().AppReducer;
-    const userId = (appState && appState.userId) || 0;
 
     let items: StringMap<EntityType>;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = toDictionary((await apiService.getAsync<EntityType>(`${controllerName}?$select=Name,Id&$expand=LiftTypes($select=Name,Timed,WorkoutTypeId;$expand=UserToLiftTypes($select=UserId;$filter=UserId eq ${userId}))`, '')).toList());
+      items = toDictionary((await apiService.getAsync<EntityType>(`${controllerName}?$select=Name,Id`, '')).toList());
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));

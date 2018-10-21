@@ -9,7 +9,7 @@ import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redu
 import {customElement, property} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
-import {createItemAsync, getItemIfNeededAsync, getItemsAsync} from '../../actions/workout-actions';
+import {createItemAsync, getItemExpandedIfNeededAsync, getItemsAsync} from '../../actions/workout-actions';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 import {loadingSelector} from '../../reducers/app-reducer';
@@ -160,6 +160,20 @@ import {store} from '../../store';
     </action-buttons>
   </template>
 </vaadin-dialog>
+<vaadin-dialog opened="{{randomDialogOpened}}">
+  <template>
+    <style>
+      :host {
+        @apply --layout-vertical;
+      }
+    </style>
+    <vaadin-text-field value="{{newWorkoutName}}" label="Name" placeholder="(leave blank)"></vaadin-text-field>
+    <action-buttons>
+      <vaadin-button cancel disabled="[[isDeleting]]" on-click="_closeRandomDialog">Cancel</vaadin-button>
+      <vaadin-button disabled="[[isDeleting]]" on-click="_createRandomWorkout">Ok</vaadin-button>
+    </action-buttons>
+  </template>
+</vaadin-dialog>
 `;
   }
 
@@ -176,8 +190,21 @@ import {store} from '../../store';
     this.blankDialogOpened = false;
   }
 
+  _handleRandomClick() {
+    this.randomDialogOpened = true;
+  }
+
+  _closeRandomDialog() {
+    this.randomDialogOpened = false;
+  }
+
+  _createRandomWorkout() {
+    store.dispatch<any>(createItemAsync({Name: this.newWorkoutName}));
+    this.randomDialogOpened = false;
+  }
+
   _handleWorkoutSummaryClick(event: any) {
-    store.dispatch<any>(getItemIfNeededAsync(event.model.item.Id));
+    store.dispatch<any>(getItemExpandedIfNeededAsync(event.model.item.Id));
   }
 
   _formatDate(date: string): string {

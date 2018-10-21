@@ -53,8 +53,7 @@ import {store} from './store';
   connectedCallback() {
     super.connectedCallback();
 
-    afterNextRender(this.$.adminApp, this._lazyLoadExtraComponents.bind(this));
-    afterNextRender(this.$.dashboardApp, this._lazyLoadExtraComponents.bind(this));
+    afterNextRender(this.$.userApp, this._lazyLoadExtraComponents.bind(this));
   }
 
   async _lazyLoadExtraComponents() {

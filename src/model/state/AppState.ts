@@ -1,5 +1,5 @@
 export interface AppState {
-  mainPage: string;  // dashboard | admin | error
+  mainPage: string;
   loadingCounter: number;
   title: string;
   fatalErrorMessage;

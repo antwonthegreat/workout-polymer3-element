@@ -16,7 +16,7 @@ export const WorkoutTypeReducer: Reducer<WorkoutTypeState> = (state = initialSta
   switch (action.type) {
     case actions.ENTITIES_RECEIVED:
       const list = action.payload as IdMap<WorkoutType>;
-      return {...state, list};
+      return {...state, list: {...state.list, ...list}};
     case actions.ENTITY_CREATED:
       return {...state, list: {...state.list, [action.payload.Id]: action.payload}};
     case actions.ENTITY_UPDATED:

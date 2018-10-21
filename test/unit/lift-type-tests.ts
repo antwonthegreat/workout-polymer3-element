@@ -82,15 +82,25 @@ describe('lift type tests', () => {
     const store = createTestStore({LiftTypeReducer}, {
       LiftTypeReducer: {
         list: {
-          1: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any,
-          2: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any,
-          3: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any,
-          4: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any,
+          1: {Id: 1, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
+          2: {Id: 2, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
+          3: {Id: 3, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
+          4: {Id: 4, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
           5: {Id: 5, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
-          6: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any,
-          7: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any
+          6: {Id: 6, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
+          7: {Id: 6, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any
         },
         selectedId: null
+      },
+      LiftReducer: {
+        list: {
+          11: {LiftTypeId: 1, StartDate: '2011-01-01'} as any,
+          12: {LiftTypeId: 2, StartDate: '2011-01-01'} as any,
+          13: {LiftTypeId: 3, StartDate: '2011-01-01'} as any,
+          14: {LiftTypeId: 4, StartDate: '2011-01-01'} as any,
+          16: {LiftTypeId: 6, StartDate: '2011-01-01'} as any,
+          17: {LiftTypeId: 7, StartDate: '2011-01-01'} as any
+        }
       },
       UserToWorkoutTypeReducer: {
         listByWorkoutTypeId: {
@@ -111,15 +121,26 @@ describe('lift type tests', () => {
     const store = createTestStore({LiftTypeReducer}, {
       LiftTypeReducer: {
         list: {
-          1: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any,
-          2: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any,
-          3: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any,
-          4: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any,
-          5: {Id: 5, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2009-01-01'}]} as any,
-          6: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any,
-          7: {WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}], Lifts: [{StartDate: '2011-01-01'}]} as any
+          1: {Id: 1, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
+          2: {Id: 2, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
+          3: {Id: 3, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
+          4: {Id: 4, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
+          5: {Id: 5, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
+          6: {Id: 6, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
+          7: {Id: 7, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any
         },
         selectedId: null
+      },
+      LiftReducer: {
+        list: {
+          11: {Id: 11, LiftTypeId: 1, StartDate: '2011-01-01'} as any,
+          12: {Id: 12, LiftTypeId: 2, StartDate: '2011-01-01'} as any,
+          13: {Id: 13, LiftTypeId: 3, StartDate: '2011-01-01'} as any,
+          14: {Id: 14, LiftTypeId: 4, StartDate: '2011-01-01' } as any,
+          15: {Id: 15, LiftTypeId: 5, StartDate: '2009-01-01'} as any,
+          16: {Id: 16, LiftTypeId: 6, StartDate: '2011-01-01'} as any,
+          17: {Id: 17, LiftTypeId: 7, StartDate: '2011-01-01'} as any
+        }
       },
       UserToWorkoutTypeReducer: {
         listByWorkoutTypeId: {

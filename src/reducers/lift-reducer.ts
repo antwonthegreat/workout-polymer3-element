@@ -15,7 +15,7 @@ const initialState = {
 export const LiftReducer: Reducer<LiftState> = (state = initialState, action: actions.Actions) => {
   switch (action.type) {
     case actions.ENTITIES_RECEIVED:
-      return {...state, list: action.payload};
+      return {...state, list: {...state.list, ...action.payload}};
     case actions.LIFT_CREATED:
       return {...state, list: {...state.list, [action.payload.Id]: action.payload}};
     case actions.ENTITY_DELETED:
@@ -37,3 +37,17 @@ export const getItems = (state: ApplicationState): IdMap<Lift> => {
 export const itemsSelector = createSelector(getItems, (items: IdMap<Lift>): Array<Lift> => {
   return Object.values(items);
 });
+
+export const getLastLiftCompletedDate = (state: ApplicationState, liftTypeId: number): Date|null => {
+  const lifts = state.LiftReducer && state.LiftReducer.list || {};
+
+  const newestMilliseconds: null|number = Object.keys(lifts).reduce((newestMilliseconds, key) => {
+    const lift: Lift = lifts[key];
+    if (lift.LiftTypeId !== liftTypeId)
+      return newestMilliseconds;
+    const liftMilliseconds = new Date(lift.StartDate).getTime();
+    return Math.max(newestMilliseconds || 0, liftMilliseconds);
+  }, null);
+
+  return newestMilliseconds ? new Date(newestMilliseconds) : null;
+};

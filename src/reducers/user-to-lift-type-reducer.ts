@@ -14,6 +14,8 @@ const initialState = {
 
 export const UserToLiftTypeReducer: Reducer<UserToLiftTypeState> = (state = initialState, action: actions.Actions) => {
   switch (action.type) {
+    case actions.ENTITIES_RECEIVED:
+      return {...state, list: {...state.list, ...action.payload}};
     case actions.ENTITY_CREATED:
       return {...state, list: {...state.list, [action.payload.Id]: action.payload}};
     case actions.ENTITY_DELETED:
