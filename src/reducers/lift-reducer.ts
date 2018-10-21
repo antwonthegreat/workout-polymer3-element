@@ -3,9 +3,11 @@ import {createSelector} from 'reselect';
 
 import * as actions from '../actions/lift-actions';
 import Lift from '../model/Lift';
+import LiftType from '../model/LiftType';
 import {ApplicationState} from '../model/state/ApplicationState';
 import {LiftState} from '../model/state/LiftState';
 import {IdMap} from '../services/action-helpers';
+import {getItems as getLiftTypes} from './lift-type-reducer';
 
 const initialState = {
   selectedId: null,
@@ -34,8 +36,10 @@ export const getItems = (state: ApplicationState): IdMap<Lift> => {
   return state.LiftReducer.list;
 };
 
-export const itemsSelector = createSelector(getItems, (items: IdMap<Lift>): Array<Lift> => {
-  return Object.values(items);
+export const liftsWithLiftTypeSelector = createSelector(getItems, getLiftTypes, (items: IdMap<Lift>, liftTypes: IdMap<LiftType>): Array<Lift> => {
+  return Object.values(items).map(lift => {
+    return {...lift, LiftType: liftTypes[lift.LiftTypeId] || null};
+  });
 });
 
 export const getLastLiftCompletedDate = (state: ApplicationState, liftTypeId: number): Date|null => {

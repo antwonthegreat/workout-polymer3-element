@@ -13,7 +13,7 @@ import {createItemAsync, getItemExpandedIfNeededAsync, getItemsAsync} from '../.
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 import {loadingSelector} from '../../reducers/app-reducer';
-import {itemsSelector} from '../../reducers/workout-reducer';
+import {workoutWithLiftsWithLiftTypeSelector} from '../../reducers/workout-reducer';
 import {store} from '../../store';
 
 @customElement('workout-list') export class WorkoutList extends connectMixin
@@ -40,7 +40,7 @@ import {store} from '../../store';
     }
 
     this.isLoading = loadingSelector(state);
-    this.workouts = itemsSelector(state);
+    this.workouts = workoutWithLiftsWithLiftTypeSelector(state);
   }
 
   static get template() {

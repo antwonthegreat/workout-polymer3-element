@@ -38,11 +38,11 @@ export const getItems = (state: ApplicationState): IdMap<LiftType> => {
   return state.LiftTypeReducer.list;
 };
 
-export const itemsSelector = createSelector(getItems, (items: IdMap<LiftType>): Array<LiftType> => {
+export const liftTypesSelector = createSelector(getItems, (items: IdMap<LiftType>): Array<LiftType> => {
   return Object.values(items);
 });
 
-export const activeItemsSelector = createSelector(itemsSelector, (items: Array<LiftType>): Array<LiftType> => {
+export const activeItemsSelector = createSelector(liftTypesSelector, (items: Array<LiftType>): Array<LiftType> => {
   return items.filter(liftType => liftType.UserToLiftTypes && liftType.UserToLiftTypes.length > 0);
 });
 
