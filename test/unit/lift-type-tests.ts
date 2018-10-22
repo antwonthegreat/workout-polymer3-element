@@ -21,8 +21,8 @@ describe('lift type tests', () => {
     const store = createTestStore({LiftReducer, LiftTypeReducer}, {
       LiftTypeReducer: {
         list: {
-          1: {Id: 1, WorkoutTypeId: 1, Name: '1', UserToLiftTypes: [], Lifts: [], Timed: false, WorkoutType: { Id: 1, LiftTypes: [], UserToWorkoutTypes: [], Name: 'Chest', Workouts: [], _odataInfo: {type: '', shortType: ''}}, _odataInfo: {type: '', shortType: ''}},
-          2: {Id: 2, WorkoutTypeId: 1, Name: '2', UserToLiftTypes: [], Lifts: [], Timed: false, WorkoutType: { Id: 1, LiftTypes: [], UserToWorkoutTypes: [], Name: 'Chest', Workouts: [], _odataInfo: {type: '', shortType: ''}}, _odataInfo: {type: '', shortType: ''}}
+          1: {Id: 1, WorkoutTypeId: 1, Name: '1'} as any,
+          2: {Id: 2, WorkoutTypeId: 1, Name: '2' } as any
         },
         selectedId: null
       }
@@ -40,8 +40,8 @@ describe('lift type tests', () => {
     const store = createTestStore({LiftTypeReducer}, {
       LiftTypeReducer: {
         list: {
-          1: {Id: 1, WorkoutTypeId: 1, Name: '1', UserToLiftTypes: [], Lifts: [], Timed: false, WorkoutType: { Id: 1, LiftTypes: [], UserToWorkoutTypes: [], Name: 'Chest', Workouts: [], _odataInfo: {type: '', shortType: ''}}, _odataInfo: {type: '', shortType: ''}},
-          2: {Id: 2, WorkoutTypeId: 1, Name: '2', UserToLiftTypes: [{Id: 1, LiftTypeId: 2, UserId: 1, _odataInfo: {type: '', shortType: ''}}], Lifts: [], Timed: false, WorkoutType: { Id: 1, LiftTypes: [], UserToWorkoutTypes: [], Name: 'Chest', Workouts: [], _odataInfo: {type: '', shortType: ''}}, _odataInfo: {type: '', shortType: ''}}
+          1: { Id: 1, WorkoutTypeId: 1, Name: '1' } as any,
+          2: { Id: 2, WorkoutTypeId: 1, Name: '2' } as any,
         },
         selectedId: null
       }
@@ -151,13 +151,13 @@ describe('lift type tests', () => {
     const store = createTestStore({LiftTypeReducer}, {
       LiftTypeReducer: {
         list: {
-          1: {Id: 1, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
-          2: {Id: 2, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
-          3: {Id: 3, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
-          4: {Id: 4, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
-          5: {Id: 5, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
-          6: {Id: 6, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any,
-          7: {Id: 7, WorkoutTypeId: 1, UserToLiftTypes: [{Id: 1}]} as any
+          1: {Id: 1, WorkoutTypeId: 1} as any,
+          2: {Id: 2, WorkoutTypeId: 1} as any,
+          3: {Id: 3, WorkoutTypeId: 1} as any,
+          4: {Id: 4, WorkoutTypeId: 1} as any,
+          5: {Id: 5, WorkoutTypeId: 1} as any,
+          6: {Id: 6, WorkoutTypeId: 1} as any,
+          7: {Id: 7, WorkoutTypeId: 1} as any
         },
         selectedId: null
       },
