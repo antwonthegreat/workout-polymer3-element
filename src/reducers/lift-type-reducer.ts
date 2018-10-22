@@ -8,6 +8,7 @@ import {LiftTypeState} from '../model/state/LiftTypeState';
 import {IdMap} from '../services/action-helpers';
 
 import {getLastLiftCompletedDate} from './lift-reducer';
+import {getItems as getUserToLiftTypes} from './user-to-lift-type-reducer';
 import {itemsByWorkoutTypesSelector} from './user-to-workout-type-reducer';
 
 const initialState = {
@@ -48,13 +49,17 @@ export const activeItemsSelector = createSelector(liftTypesSelector, (items: Arr
 
 export const getActiveItems = (state: ApplicationState, workoutTypeId: number|null): Array<LiftType> => {
   const items = state.LiftTypeReducer ? state.LiftTypeReducer.list : {};
-
-  return Object.values(items).filter(liftType => liftType.UserToLiftTypes && liftType.UserToLiftTypes.length > 0 && (!workoutTypeId || liftType.WorkoutTypeId === workoutTypeId));
+  const userToLiftTypes = getUserToLiftTypes(state);
+  // console.log(`items, ${JSON.stringify(items)}`);
+  // console.log(`utlts, ${JSON.stringify(userToLiftTypes)}`);
+  return Object.values(items).filter(liftType => {
+    const userToLiftType = Object.values(userToLiftTypes).filter(userToLiftType => userToLiftType.LiftTypeId === liftType.Id)[0];
+    return userToLiftType && (!workoutTypeId || liftType.WorkoutTypeId === workoutTypeId);
+  });
 };
 
 export const getIncompleteActiveItems = (state: ApplicationState, workoutTypeId: number|null): Array<LiftType> => {
   const allActiveItems = getActiveItems(state, workoutTypeId);
-
   return allActiveItems.filter(liftType => {
     const userToWorkoutType = itemsByWorkoutTypesSelector(state)[liftType.WorkoutTypeId];
     const workoutTypeLastCompletedDate = userToWorkoutType && userToWorkoutType.LastCompletedDate && new Date(userToWorkoutType.LastCompletedDate) || null;

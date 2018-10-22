@@ -13,6 +13,7 @@ import {createItemAsync, getItemExpandedIfNeededAsync, getItemsAsync} from '../.
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 import {loadingSelector} from '../../reducers/app-reducer';
+import {activeIncompleteItemSelector} from '../../reducers/lift-type-reducer';
 import {workoutWithLiftsWithLiftTypeSelector} from '../../reducers/workout-reducer';
 import {store} from '../../store';
 
@@ -199,7 +200,8 @@ import {store} from '../../store';
   }
 
   _createRandomWorkout() {
-    store.dispatch<any>(createItemAsync({Name: this.newWorkoutName}));
+    console.log(activeIncompleteItemSelector(store.getState(), null));
+    // store.dispatch<any>(createItemAsync({Name: this.newWorkoutName}));
     this.randomDialogOpened = false;
   }
 

@@ -46,7 +46,7 @@ export const getItemsAsync = () => {
                    `${controllerName}?$select=Name,Id
       &$expand=
         LiftTypes($select=Id,Name,Timed,WorkoutTypeId;$expand=
-          UserToLiftTypes($select=Id,UserId;$filter=UserId eq ${userId})
+          UserToLiftTypes($select=Id,UserId,LiftTypeId;$filter=UserId eq ${userId})
           ,Lifts($orderby=StartDate desc;$top=1)
         )
         ,UserToWorkoutTypes($select=Id,WorkoutTypeId,LastCompletedDate;$filter=UserId eq ${userId})`,
@@ -92,7 +92,7 @@ export const getItemsAsync = () => {
     dispatch(LiftTypeActions.entitiesReceived(liftTypes));
     dispatch(UserToLiftTypeActions.entitiesReceived(userToLiftTypes));
     dispatch(UserToWorkoutTypeActions.entitiesReceived(userToWorkoutTypes));
-    dispatch(Actions.entitiesReceived(items));
+    dispatch(Actions.entitiesReceived(workoutTypes));
   };
 };
 
