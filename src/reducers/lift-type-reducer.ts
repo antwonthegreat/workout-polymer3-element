@@ -72,12 +72,13 @@ export const getIncompleteActiveItems = (state: ApplicationState, workoutTypeId:
   });
 };
 
-export const activeIncompleteItemSelector = (state: ApplicationState, workoutTypeId: number|null): LiftType|null => {
+export const activeIncompleteItemSelector = (state: ApplicationState, workoutTypeId: number|null, liftTypesAlreadyInWorkout: IdMap<LiftType>): LiftType|null => {
   let incompleteActiveItems = getIncompleteActiveItems(state, workoutTypeId);
 
   if (incompleteActiveItems.length < 1)
     incompleteActiveItems = getActiveItems(state, workoutTypeId);
 
+  incompleteActiveItems = incompleteActiveItems.filter(liftType => !liftTypesAlreadyInWorkout[liftType.Id]);
   if (incompleteActiveItems.length < 1)
     return null;  // Not enough active liftTypes to generate numberOfItems
 

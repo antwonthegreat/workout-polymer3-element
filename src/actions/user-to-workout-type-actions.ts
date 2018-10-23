@@ -87,7 +87,7 @@ export const updateLastCompletedDateAsync = (workoutTypeId: number) => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, getState: () => ApplicationState, _injected: ActionInjectable) => {
     const state = getState();
     const item = state.UserToWorkoutTypeReducer && state.UserToWorkoutTypeReducer.listByWorkoutTypeId && state.UserToWorkoutTypeReducer.listByWorkoutTypeId[workoutTypeId];
-    if (activeIncompleteItemSelector(state, workoutTypeId) == null) {
+    if (activeIncompleteItemSelector(state, workoutTypeId, []) == null) {
       if (item) {
         let {WorkoutType, User, ...delta} = item;
         delta.LastCompletedDate = new Date().toISOString();

@@ -10,11 +10,14 @@ import {customElement, property} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
 import {createItemAsync, getItemExpandedIfNeededAsync, getItemsAsync} from '../../actions/workout-actions';
+import Lift from '../../model/Lift';
+import LiftType from '../../model/LiftType';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 import {loadingSelector} from '../../reducers/app-reducer';
 import {activeIncompleteItemSelector} from '../../reducers/lift-type-reducer';
 import {workoutWithLiftsWithLiftTypeSelector} from '../../reducers/workout-reducer';
+import {IdMap} from '../../services/action-helpers';
 import {store} from '../../store';
 
 @customElement('workout-list') export class WorkoutList extends connectMixin
@@ -27,6 +30,7 @@ import {store} from '../../store';
   @property() randomDialogOpened: boolean;
   @property() templateDialogOpened: boolean;
   @property() newWorkoutName: string;
+  @property() randomLiftCount: string;
 
   connectedCallback() {
     super.connectedCallback();
@@ -169,6 +173,7 @@ import {store} from '../../store';
       }
     </style>
     <vaadin-text-field value="{{newWorkoutName}}" label="Name" placeholder="(leave blank)"></vaadin-text-field>
+    <vaadin-text-field value="{{randomLiftCount}}" label="Number of Lifts" placeholder="3"></vaadin-text-field>
     <action-buttons>
       <vaadin-button cancel disabled="[[isDeleting]]" on-click="_closeRandomDialog">Cancel</vaadin-button>
       <vaadin-button disabled="[[isDeleting]]" on-click="_createRandomWorkout">Ok</vaadin-button>
@@ -200,8 +205,23 @@ import {store} from '../../store';
   }
 
   _createRandomWorkout() {
-    console.log(activeIncompleteItemSelector(store.getState(), null));
-    // store.dispatch<any>(createItemAsync({Name: this.newWorkoutName}));
+    let liftCount = parseInt(this.randomLiftCount, 10);
+    liftCount = isNaN(liftCount) || liftCount < 0 ? 3 : liftCount;
+    console.log(liftCount);
+    const liftTypes: IdMap<LiftType> = {};
+    while (liftCount > 0) {
+      const liftType = activeIncompleteItemSelector(store.getState(), null, liftTypes);
+      if (!liftType) {
+        liftCount = 0;
+        break;
+      }
+      liftTypes[liftType.Id] = liftType;
+      liftCount--;
+    }
+    const lifts = Object.values(liftTypes).map(liftType => {
+      return {LiftTypeId: liftType.Id};
+    });
+    store.dispatch<any>(createItemAsync({Name: this.newWorkoutName, Lifts: lifts as Array<Lift>}));
     this.randomDialogOpened = false;
   }
 
