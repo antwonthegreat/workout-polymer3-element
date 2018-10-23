@@ -4,6 +4,7 @@ import '@vaadin/vaadin-dialog/vaadin-dialog';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '@polymer/app-route/app-route.js';
 import '@polymer/app-route/app-location.js';
+import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box-light';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, property} from '@polymer/decorators';
@@ -14,23 +15,32 @@ import Lift from '../../model/Lift';
 import LiftType from '../../model/LiftType';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
+import WorkoutType from '../../model/WorkoutType';
 import {loadingSelector} from '../../reducers/app-reducer';
 import {activeIncompleteItemSelector} from '../../reducers/lift-type-reducer';
 import {workoutWithLiftsWithLiftTypeSelector} from '../../reducers/workout-reducer';
+import {itemsSelector as workoutTypeSelector} from '../../reducers/workout-type-reducer';
 import {IdMap} from '../../services/action-helpers';
 import {store} from '../../store';
+
+type WorkoutTypeComboBoxItem = {
+  label: string,
+  value: WorkoutType
+};
 
 @customElement('workout-list') export class WorkoutList extends connectMixin
 (store, PolymerElement) {
   @property() route: Object;
   @property() routeData: {page: string|null};
   @property() workouts: Array<Workout>;
+  @property() workoutTypeComboBoxItems: Array<WorkoutTypeComboBoxItem>;
   @property() isLoading: boolean;
   @property() blankDialogOpened: boolean;
   @property() randomDialogOpened: boolean;
   @property() templateDialogOpened: boolean;
   @property() newWorkoutName: string;
   @property() randomLiftCount: string;
+  @property() selectedWorkoutTypeComboBoxItem: WorkoutTypeComboBoxItem|null;
 
   connectedCallback() {
     super.connectedCallback();
@@ -46,6 +56,9 @@ import {store} from '../../store';
 
     this.isLoading = loadingSelector(state);
     this.workouts = workoutWithLiftsWithLiftTypeSelector(state);
+    this.workoutTypeComboBoxItems = workoutTypeSelector(state).map(workoutType => {
+      return {label: workoutType.Name, value: workoutType};
+    });
   }
 
   static get template() {
@@ -173,6 +186,13 @@ import {store} from '../../store';
       }
     </style>
     <vaadin-text-field value="{{newWorkoutName}}" label="Name" placeholder="(leave blank)"></vaadin-text-field>
+    <vaadin-combo-box-light opened="{{opened}}" items="[[workoutTypeComboBoxItems]]" selected-item="{{selectedWorkoutTypeComboBoxItem}}">
+      <vaadin-text-field placeholder="Any" label="Muscle Group">
+        <template>
+        <span>[[item.label]]</span>
+        </template>
+      </vaadin-text-field>
+    </vaadin-combo-box-light>
     <vaadin-text-field value="{{randomLiftCount}}" label="Number of Lifts" placeholder="3"></vaadin-text-field>
     <action-buttons>
       <vaadin-button cancel disabled="[[isDeleting]]" on-click="_closeRandomDialog">Cancel</vaadin-button>
@@ -207,10 +227,9 @@ import {store} from '../../store';
   _createRandomWorkout() {
     let liftCount = parseInt(this.randomLiftCount, 10);
     liftCount = isNaN(liftCount) || liftCount < 0 ? 3 : liftCount;
-    console.log(liftCount);
     const liftTypes: IdMap<LiftType> = {};
     while (liftCount > 0) {
-      const liftType = activeIncompleteItemSelector(store.getState(), null, liftTypes);
+      const liftType = activeIncompleteItemSelector(store.getState(), this.selectedWorkoutTypeComboBoxItem ? this.selectedWorkoutTypeComboBoxItem.value.Id : null, liftTypes);
       if (!liftType) {
         liftCount = 0;
         break;
