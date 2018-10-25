@@ -5,10 +5,13 @@ import {ActionInjectable} from '../model/ActionInjectable';
 import Lift from '../model/Lift';
 import {ApplicationState} from '../model/state/ApplicationState';
 import Workout from '../model/Workout';
+import WorkoutType from '../model/WorkoutType';
+import {getItems as getLiftTypes} from '../reducers/lift-type-reducer';
 import {IdMap} from '../services/action-helpers';
 
 import {Actions as AppActions} from './app-actions';
 import {Actions as LiftActions} from './lift-actions';
+import {updateLastCompletedDateAsync} from './user-to-workout-type-actions';
 
 type EntityType = Workout;
 const entityName = 'Workout';
@@ -95,7 +98,7 @@ export const getItemExpandedIfNeededAsync = (id: number) => {
 };
 
 export const createItemAsync = (item: Partial<EntityType>) => {
-  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
+  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
     let createdItem: EntityType|null;
     dispatch(AppActions.pageLoadingStarted());
@@ -111,6 +114,19 @@ export const createItemAsync = (item: Partial<EntityType>) => {
       dispatch(AppActions.setSnackbarErrorMessage(`Error Creating ${entityName}`));
       return;
     }
+
+    if (item.Lifts && item.Lifts.length) {
+      const workoutTypesToUpdate: IdMap<WorkoutType> = item.Lifts.reduce((acc: IdMap<WorkoutType>, lift) => {
+        const liftType = getLiftTypes(getState())[lift.LiftTypeId];
+        if (liftType)
+          acc[liftType.WorkoutTypeId] = {} as WorkoutType;
+        return acc;
+      }, {});
+      Object.keys(workoutTypesToUpdate).forEach(workoutTypeId => {
+        dispatch(updateLastCompletedDateAsync(parseInt(workoutTypeId)));
+      });
+    }
+
     createdItem.Lifts = [];
     dispatch(Actions.entityCreated(createdItem));
     dispatch(getItemExpandedIfNeededAsync(createdItem.Id));

@@ -59,6 +59,7 @@ type WorkoutTypeComboBoxItem = {
     this.workoutTypeComboBoxItems = workoutTypeSelector(state).map(workoutType => {
       return {label: workoutType.Name, value: workoutType};
     });
+    console.log(activeIncompleteItemSelector(state, 6, [], false));
   }
 
   static get template() {
@@ -184,20 +185,28 @@ type WorkoutTypeComboBoxItem = {
       :host {
         @apply --layout-vertical;
       }
+
+      main {
+        display: block;
+        padding: 8px;
+        @apply --layout-vertical;
+      }
     </style>
-    <vaadin-text-field value="{{newWorkoutName}}" label="Name" placeholder="(leave blank)"></vaadin-text-field>
-    <vaadin-combo-box-light opened="{{opened}}" items="[[workoutTypeComboBoxItems]]" selected-item="{{selectedWorkoutTypeComboBoxItem}}">
-      <vaadin-text-field placeholder="Any" label="Muscle Group">
-        <template>
-        <span>[[item.label]]</span>
-        </template>
-      </vaadin-text-field>
-    </vaadin-combo-box-light>
-    <vaadin-text-field value="{{randomLiftCount}}" label="Number of Lifts" placeholder="3"></vaadin-text-field>
-    <action-buttons>
-      <vaadin-button cancel disabled="[[isDeleting]]" on-click="_closeRandomDialog">Cancel</vaadin-button>
-      <vaadin-button disabled="[[isDeleting]]" on-click="_createRandomWorkout">Ok</vaadin-button>
-    </action-buttons>
+    <main>
+      <vaadin-text-field value="{{newWorkoutName}}" label="Name" placeholder="(leave blank)"></vaadin-text-field>
+      <vaadin-combo-box-light opened="{{opened}}" items="[[workoutTypeComboBoxItems]]" selected-item="{{selectedWorkoutTypeComboBoxItem}}">
+        <vaadin-text-field placeholder="Any" label="Muscle Group">
+          <template>
+          <span>[[item.label]]</span>
+          </template>
+        </vaadin-text-field>
+      </vaadin-combo-box-light>
+      <vaadin-text-field value="{{randomLiftCount}}" label="Number of Lifts" placeholder="3"></vaadin-text-field>
+      <action-buttons>
+        <vaadin-button cancel disabled="[[isDeleting]]" on-click="_closeRandomDialog">Cancel</vaadin-button>
+        <vaadin-button disabled="[[isDeleting]]" on-click="_createRandomWorkout">Ok</vaadin-button>
+      </action-buttons>
+    </main>
   </template>
 </vaadin-dialog>
 `;
@@ -247,7 +256,7 @@ type WorkoutTypeComboBoxItem = {
   _handleWorkoutSummaryClick(event: any) {
     store.dispatch<any>(getItemExpandedIfNeededAsync(event.model.item.Id));
   }
-
+  // TODO:clear modal inputs on success
   _formatDate(date: string): string {
     return new Date(date).toLocaleDateString();
   }

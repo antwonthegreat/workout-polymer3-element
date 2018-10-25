@@ -64,6 +64,10 @@ export const getIncompleteActiveItems = (state: ApplicationState, workoutTypeId:
     const userToWorkoutType = itemsByWorkoutTypesSelector(state)[liftType.WorkoutTypeId];
     const workoutTypeLastCompletedDate = userToWorkoutType && userToWorkoutType.LastCompletedDate && new Date(userToWorkoutType.LastCompletedDate) || null;
     const liftTypeLastCompletedDate = getLastLiftCompletedDate(state, liftType.Id);
+    // if (liftType.Id === 10)
+    // console.log(liftTypeLastCompletedDate, workoutTypeLastCompletedDate);
+    if (!workoutTypeLastCompletedDate && liftTypeLastCompletedDate)
+      return false;
 
     if (!workoutTypeLastCompletedDate || !liftTypeLastCompletedDate)
       return true;
@@ -72,10 +76,21 @@ export const getIncompleteActiveItems = (state: ApplicationState, workoutTypeId:
   });
 };
 
-export const activeIncompleteItemSelector = (state: ApplicationState, workoutTypeId: number|null, liftTypesAlreadyInWorkout: IdMap<LiftType>): LiftType|null => {
+export const allActiveIncompleteItemsSelector = (state: ApplicationState, workoutTypeId: number|null, liftTypesAlreadyInWorkout: IdMap<LiftType>): Array<LiftType> => {
   let incompleteActiveItems = getIncompleteActiveItems(state, workoutTypeId);
 
-  if (incompleteActiveItems.length < 1)
+  if (incompleteActiveItems.length < 1) {
+    incompleteActiveItems = getActiveItems(state, workoutTypeId);
+  }
+
+  incompleteActiveItems = incompleteActiveItems.filter(liftType => !liftTypesAlreadyInWorkout[liftType.Id]);
+  return incompleteActiveItems;
+};
+
+export const activeIncompleteItemSelector = (state: ApplicationState, workoutTypeId: number|null, liftTypesAlreadyInWorkout: IdMap<LiftType>, fallbackToComplete: boolean = true): LiftType|null => {
+  let incompleteActiveItems = getIncompleteActiveItems(state, workoutTypeId);
+
+  if (fallbackToComplete && incompleteActiveItems.length < 1)
     incompleteActiveItems = getActiveItems(state, workoutTypeId);
 
   incompleteActiveItems = incompleteActiveItems.filter(liftType => !liftTypesAlreadyInWorkout[liftType.Id]);

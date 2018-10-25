@@ -71,15 +71,16 @@ export const updateItemAsync = (id: number, item: Partial<EntityType>) => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
     dispatch(AppActions.pageLoadingStarted());
+    let patchedItem: UserToWorkoutType|null = null;
     try {
-      (await apiService.patchAsync(`${controllerName}(${id})`, item, ''));
+      patchedItem = (await apiService.patchReturnDtoAsync<UserToWorkoutType>(`${controllerName}(${id})`, item, ''));
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
       return;
     }
     dispatch(AppActions.pageLoadingEnded());
-    dispatch(Actions.entityUpdated({...item, Id: id}));
+    dispatch(Actions.entityUpdated({...patchedItem, Id: id}));
   };
 };
 
@@ -87,11 +88,14 @@ export const updateLastCompletedDateAsync = (workoutTypeId: number) => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, getState: () => ApplicationState, _injected: ActionInjectable) => {
     const state = getState();
     const item = state.UserToWorkoutTypeReducer && state.UserToWorkoutTypeReducer.listByWorkoutTypeId && state.UserToWorkoutTypeReducer.listByWorkoutTypeId[workoutTypeId];
-    if (activeIncompleteItemSelector(state, workoutTypeId, []) == null) {
+    const activeIncompleteLiftType = activeIncompleteItemSelector(state, workoutTypeId, [], false);
+    console.log(activeIncompleteLiftType);
+    if (activeIncompleteLiftType == null) {
+      console.log(`updateLastCompletedDateAsync`);
+      console.log(activeIncompleteItemSelector(state, workoutTypeId, []));
       if (item) {
-        let {WorkoutType, User, ...delta} = item;
-        delta.LastCompletedDate = new Date().toISOString();
-        dispatch(updateItemAsync(delta.Id, delta));
+        const delta = {LastCompletedDate: new Date().toISOString()};
+        dispatch(updateItemAsync(item.Id, delta));
       } else {
         dispatch(createItemAsync({WorkoutTypeId: workoutTypeId, LastCompletedDate: new Date().toISOString()}));
       }
