@@ -76,10 +76,10 @@ export const getIncompleteActiveItems = (state: ApplicationState, workoutTypeId:
   });
 };
 
-export const allActiveIncompleteItemsSelector = (state: ApplicationState, workoutTypeId: number|null, liftTypesAlreadyInWorkout: IdMap<LiftType>): Array<LiftType> => {
+export const allActiveIncompleteItemsSelector = (state: ApplicationState, workoutTypeId: number|null, liftTypesAlreadyInWorkout: IdMap<LiftType>, fallbackToComplete: boolean = true): Array<LiftType> => {
   let incompleteActiveItems = getIncompleteActiveItems(state, workoutTypeId);
 
-  if (incompleteActiveItems.length < 1) {
+  if (fallbackToComplete && incompleteActiveItems.length < 1) {
     incompleteActiveItems = getActiveItems(state, workoutTypeId);
   }
 

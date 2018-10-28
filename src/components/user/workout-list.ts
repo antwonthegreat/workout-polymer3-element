@@ -18,6 +18,7 @@ import Workout from '../../model/Workout';
 import WorkoutType from '../../model/WorkoutType';
 import {loadingSelector} from '../../reducers/app-reducer';
 import {activeIncompleteItemSelector} from '../../reducers/lift-type-reducer';
+// import {itemsByWorkoutTypesSelector} from '../../reducers/user-to-workout-type-reducer';
 import {workoutWithLiftsWithLiftTypeSelector} from '../../reducers/workout-reducer';
 import {itemsSelector as workoutTypeSelector} from '../../reducers/workout-type-reducer';
 import {IdMap} from '../../services/action-helpers';
@@ -41,6 +42,7 @@ type WorkoutTypeComboBoxItem = {
   @property() newWorkoutName: string;
   @property() randomLiftCount: string;
   @property() selectedWorkoutTypeComboBoxItem: WorkoutTypeComboBoxItem|null;
+  // @property() t;
 
   connectedCallback() {
     super.connectedCallback();
@@ -59,7 +61,8 @@ type WorkoutTypeComboBoxItem = {
     this.workoutTypeComboBoxItems = workoutTypeSelector(state).map(workoutType => {
       return {label: workoutType.Name, value: workoutType};
     });
-    console.log(activeIncompleteItemSelector(state, 6, [], false));
+    // this.t = itemsByWorkoutTypesSelector(state)[6].LastCompletedDate;
+    // console.log(allActiveIncompleteItemsSelector(state, 6, [], false));
   }
 
   static get template() {
@@ -137,7 +140,7 @@ type WorkoutTypeComboBoxItem = {
   </header>
   <template is="dom-repeat" items="[[workouts]]">
     <workout-summary on-click="_handleWorkoutSummaryClick">
-      <workout-name>[[item.Name]]</workout-name>
+      <workout-name>[[item.Name]] [[item.StartDate]]</workout-name>
       <workout-date>[[_formatDate(item.StartDate)]]</workout-date>
       <ul hidden$="[[!item.Lifts.0]">
         <template is="dom-repeat" items="[[item.Lifts]]">
@@ -238,7 +241,7 @@ type WorkoutTypeComboBoxItem = {
     liftCount = isNaN(liftCount) || liftCount < 0 ? 3 : liftCount;
     const liftTypes: IdMap<LiftType> = {};
     while (liftCount > 0) {
-      const liftType = activeIncompleteItemSelector(store.getState(), this.selectedWorkoutTypeComboBoxItem ? this.selectedWorkoutTypeComboBoxItem.value.Id : null, liftTypes);
+      const liftType = activeIncompleteItemSelector(store.getState(), this.selectedWorkoutTypeComboBoxItem ? this.selectedWorkoutTypeComboBoxItem.value.Id : null, liftTypes, true);
       if (!liftType) {
         liftCount = 0;
         break;

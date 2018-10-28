@@ -10,7 +10,7 @@ import {customElement, observe, property} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
 import {Actions as AppActions} from '../../actions/app-actions';
-import {Actions} from '../../actions/workout-actions';
+import {selectEntityAsync, updateItemAsync} from '../../actions/workout-actions';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 // import {loadingSelector} from '../../reducers/app-reducer';
@@ -22,6 +22,7 @@ import {store} from '../../store';
   @property() route: Object;
   @property() routeData: {id: string|null};
   @property() itemId: number;
+  @property() newWorkoutName: string;
 
   @property() selectedWorkout: Workout|null;
 
@@ -49,7 +50,7 @@ import {store} from '../../store';
     if (!itemId)
       return;
 
-    store.dispatch(Actions.entitySelected(itemId));
+    store.dispatch<any>(selectEntityAsync(itemId));
   }
 
   _stateChanged(state: ApplicationState) {
@@ -58,6 +59,17 @@ import {store} from '../../store';
     }
 
     this.selectedWorkout = selectedItemSelector(state);
+    if (this.selectedWorkout && !this.newWorkoutName)
+      this.newWorkoutName = this.selectedWorkout.Name;
+  }
+
+  protected _nameChanged(newWorkoutName: string, selectedWorkoutName: string) {
+    return newWorkoutName === selectedWorkoutName;
+  }
+
+  protected _renameWorkout() {
+    if (this.selectedWorkout)
+      store.dispatch<any>(updateItemAsync(this.selectedWorkout.Id, {Name: this.newWorkoutName}));
   }
 
   static get template() {
@@ -100,7 +112,8 @@ import {store} from '../../store';
 <app-route route="{{route}}" pattern="/user/workout/:id" data="{{routeData}}"> </app-route>
 <main-content>
   <header>
-    <h1>[[selectedWorkout.Name]]</h1>
+    <vaadin-text-field value="{{newWorkoutName}}" label="Name"></vaadin-text-field>
+    <vaadin-button hidden$="[[_nameChanged(newWorkoutName, selectedWorkout.Name)]]" on-click="_renameWorkout">Save</vaadin-button>
   </header>
 </main-content>
 `;

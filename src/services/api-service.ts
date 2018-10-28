@@ -81,7 +81,7 @@ export default class ApiService implements IApiService {
     if (response.status === 201 || response.status === 200) {
       return Promise.resolve(json);
     } else {
-      return Promise.reject('Request error, please try again later.');
+      return Promise.reject(`Request error, please try again later.`);
     }
   }
 
@@ -109,7 +109,7 @@ export default class ApiService implements IApiService {
       return Promise.reject(error);
     }
 
-    if (response.status === 204) {
+    if (response.status === 200) {
       return Promise.resolve();
     }
 
@@ -121,7 +121,7 @@ export default class ApiService implements IApiService {
         return Promise.reject(json.error.message);
       }
 
-      return Promise.reject('Request error, please try again later.');
+      return Promise.reject(`Request error ${response.status}, please try again later.`);
     } catch (error) {
       return Promise.reject(`The server sent back invalid JSON. ${error}`);
     }

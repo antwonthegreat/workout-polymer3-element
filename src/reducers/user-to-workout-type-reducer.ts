@@ -16,6 +16,10 @@ export const UserToWorkoutTypeReducer: Reducer<UserToWorkoutTypeState> = (state 
     case actions.ENTITIES_RECEIVED:
       const listByWorkoutTypeId = action.payload as IdMap<UserToWorkoutType>;
       return {...state, listByWorkoutTypeId: {...state.listByWorkoutTypeId, ...listByWorkoutTypeId}};
+    case actions.ENTITY_UPDATED:
+      if (!action.payload.WorkoutTypeId)
+        return state;
+      return {...state, listByWorkoutTypeId: {...state.listByWorkoutTypeId, [action.payload.WorkoutTypeId]: {...state.listByWorkoutTypeId[action.payload.WorkoutTypeId], ...action.payload}}};
     case actions.ENTITY_CREATED:
       return {...state, listByWorkoutTypeId: {...state.listByWorkoutTypeId, [action.payload.WorkoutTypeId]: action.payload}};
     case actions.ENTITY_DELETED:

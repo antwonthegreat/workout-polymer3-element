@@ -89,10 +89,10 @@ export const updateLastCompletedDateAsync = (workoutTypeId: number) => {
     const state = getState();
     const item = state.UserToWorkoutTypeReducer && state.UserToWorkoutTypeReducer.listByWorkoutTypeId && state.UserToWorkoutTypeReducer.listByWorkoutTypeId[workoutTypeId];
     const activeIncompleteLiftType = activeIncompleteItemSelector(state, workoutTypeId, [], false);
-    console.log(activeIncompleteLiftType);
+    // console.log(activeIncompleteLiftType);
     if (activeIncompleteLiftType == null) {
-      console.log(`updateLastCompletedDateAsync`);
-      console.log(activeIncompleteItemSelector(state, workoutTypeId, []));
+      // console.log(`updateLastCompletedDateAsync`);
+      // console.log(activeIncompleteItemSelector(state, workoutTypeId, []));
       if (item) {
         const delta = {LastCompletedDate: new Date().toISOString()};
         dispatch(updateItemAsync(item.Id, delta));

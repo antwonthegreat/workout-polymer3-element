@@ -30,6 +30,13 @@ export const Actions = {
   entitySelected: (id: number) => createAction(ENTITY_SELECTED, id),
 };
 
+export const selectEntityAsync = (id: number) => {
+  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, _injected: ActionInjectable) => {
+    dispatch(getItemExpandedIfNeededAsync(id));
+    dispatch(Actions.entitySelected(id));
+  };
+};
+
 export const getItemsAsync = () => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
