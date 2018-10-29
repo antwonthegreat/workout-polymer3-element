@@ -4,6 +4,7 @@ import '@vaadin/vaadin-dialog/vaadin-dialog';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '@polymer/app-route/app-route.js';
 import '@polymer/app-route/app-location.js';
+import '../../styles/card-shared-styles.js';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, observe, property} from '@polymer/decorators';
@@ -73,7 +74,7 @@ import {store} from '../../store';
   }
 
   static get template() {
-    return html`<style>
+    return html`<style include="card-shared-styles">
   :host {
     @apply --layout-horizontal;
   }
@@ -111,10 +112,12 @@ import {store} from '../../store';
 <app-location route="{{route}}"></app-location>
 <app-route route="{{route}}" pattern="/user/workout/:id" data="{{routeData}}"> </app-route>
 <main-content>
-  <header>
-    <vaadin-text-field value="{{newWorkoutName}}" label="Name"></vaadin-text-field>
-    <vaadin-button hidden$="[[_nameChanged(newWorkoutName, selectedWorkout.Name)]]" on-click="_renameWorkout">Save</vaadin-button>
-  </header>
+  <material-card>
+    <card-header-section>
+      <vaadin-text-field value="{{newWorkoutName}}" label="Name"></vaadin-text-field>
+      <vaadin-button hidden$="[[_nameChanged(newWorkoutName, selectedWorkout.Name)]]" on-click="_renameWorkout">Save</vaadin-button>
+    </card-header-section>
+  </material-card>
 </main-content>
 `;
   }
