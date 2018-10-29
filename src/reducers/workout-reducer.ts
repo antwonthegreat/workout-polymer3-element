@@ -65,6 +65,20 @@ export const workoutWithLiftsWithLiftTypeSelector = createSelector(getItems, get
   });
 });
 
-export const selectedItemSelector = createSelector(getItems, getSelectedId, (items: IdMap<Workout>, selectedId: number): Workout|null => {
-  return selectedId ? items[selectedId] : null;
+// TODO: save as template
+
+export const selectedItemWithLiftsWithLiftTypeSelector = createSelector(getItems, getLifts, getLiftTypes, getSelectedId, (items: IdMap<Workout>, lifts: IdMap<Lift>, liftTypes: IdMap<LiftType>, selectedId: number): Workout|null => {
+  if (!selectedId)
+    return null;
+  const workout = items[selectedId];
+  if (!workout)
+    return null;
+  return {
+    ...workout,
+    Lifts: Object.keys(lifts)
+               .map(key => {
+                 return {...lifts[key], LiftType: liftTypes[lifts[key].LiftTypeId]};
+               })
+               .filter((lift: Lift) => lift.WorkoutId === workout.Id)
+  };
 });

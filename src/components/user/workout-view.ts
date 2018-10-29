@@ -5,6 +5,7 @@ import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '@polymer/app-route/app-route.js';
 import '@polymer/app-route/app-location.js';
 import '../../styles/card-shared-styles.js';
+import './lift-item';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, observe, property} from '@polymer/decorators';
@@ -15,7 +16,7 @@ import {selectEntityAsync, updateItemAsync} from '../../actions/workout-actions'
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 // import {loadingSelector} from '../../reducers/app-reducer';
-import {selectedItemSelector} from '../../reducers/workout-reducer';
+import {selectedItemWithLiftsWithLiftTypeSelector} from '../../reducers/workout-reducer';
 import {store} from '../../store';
 
 @customElement('workout-view') export class WorkoutView extends connectMixin
@@ -59,7 +60,7 @@ import {store} from '../../store';
       return;
     }
 
-    this.selectedWorkout = selectedItemSelector(state);
+    this.selectedWorkout = selectedItemWithLiftsWithLiftTypeSelector(state);
     if (this.selectedWorkout && !this.newWorkoutName)
       this.newWorkoutName = this.selectedWorkout.Name;
   }
@@ -98,6 +99,23 @@ import {store} from '../../store';
     margin: 0 0 8px 0;
   }
 
+  vaadin-button[add] {
+    background-color: var(--app-secondary-color);
+    box-shadow: 1px 1px 4px var(--app-primary-color);
+    border-radius: 50%;
+    color: #fff;
+    height: 56px;
+    min-width: 56px;
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    cursor: pointer;
+  }
+
+  svg {
+    fill: #fff;
+  }
+
   [hidden] {
     display: none;
   }
@@ -113,12 +131,24 @@ import {store} from '../../store';
 <app-route route="{{route}}" pattern="/user/workout/:id" data="{{routeData}}"> </app-route>
 <main-content>
   <material-card>
-    <card-header-section>
+    <card-section>
       <vaadin-text-field value="{{newWorkoutName}}" label="Name"></vaadin-text-field>
       <vaadin-button hidden$="[[_nameChanged(newWorkoutName, selectedWorkout.Name)]]" on-click="_renameWorkout">Save</vaadin-button>
-    </card-header-section>
+    </card-section>
+  </material-card>
+  <material-card>
+    <card-section>
+      <template is="dom-repeat" items="[[selectedWorkout.Lifts]]">
+        <lift-item lift="[[item]]"></lift-item>
+      </template>
+    </card-section>
   </material-card>
 </main-content>
+<vaadin-button on-click="_addLift" add>
+  <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+  </svg>
+</vaadin-button>
 `;
   }
 
