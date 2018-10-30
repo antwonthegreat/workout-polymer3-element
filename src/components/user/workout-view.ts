@@ -6,9 +6,10 @@ import '@polymer/app-route/app-route.js';
 import '@polymer/app-route/app-location.js';
 import '../../styles/card-shared-styles.js';
 import './lift-item';
+import './add-lift-dialog';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
-import {customElement, observe, property} from '@polymer/decorators';
+import {customElement, observe, property, query} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
 import {Actions as AppActions} from '../../actions/app-actions';
@@ -18,6 +19,7 @@ import Workout from '../../model/Workout';
 // import {loadingSelector} from '../../reducers/app-reducer';
 import {selectedItemWithLiftsWithLiftTypeSelector} from '../../reducers/workout-reducer';
 import {store} from '../../store';
+import {AddLiftDialog} from './add-lift-dialog';
 
 @customElement('workout-view') export class WorkoutView extends connectMixin
 (store, PolymerElement) {
@@ -25,8 +27,8 @@ import {store} from '../../store';
   @property() routeData: {id: string|null};
   @property() itemId: number;
   @property() newWorkoutName: string;
-
   @property() selectedWorkout: Workout|null;
+  @query('add-lift-dialog') addLiftDialog: AddLiftDialog;
 
   connectedCallback() {
     super.connectedCallback();
@@ -72,6 +74,10 @@ import {store} from '../../store';
   protected _renameWorkout() {
     if (this.selectedWorkout)
       store.dispatch<any>(updateItemAsync(this.selectedWorkout.Id, {Name: this.newWorkoutName}));
+  }
+
+  protected _openAddLift() {
+    this.addLiftDialog.openDialog();
   }
 
   static get template() {
@@ -144,11 +150,12 @@ import {store} from '../../store';
     </card-section>
   </material-card>
 </main-content>
-<vaadin-button on-click="_addLift" add>
+<vaadin-button on-click="_openAddLift" add>
   <svg style="width:24px;height:24px" viewBox="0 0 24 24">
     <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
   </svg>
 </vaadin-button>
+<add-lift-dialog workout="[[selectedWorkout]]"></add-lift-dialog>
 `;
   }
 
