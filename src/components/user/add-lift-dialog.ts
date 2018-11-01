@@ -55,10 +55,11 @@ type LiftTypeComboBoxItem = {
       return;
     }
 
-    this.liftTypeComboBoxItems = getActiveItems(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id).map((liftType) => {
-      return {label: liftType.Name, value: liftType};
-    });
-    // TODO: filter lt aleady in workout
+    this.liftTypeComboBoxItems = getActiveItems(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id)
+                                     .filter(liftType => !this.workout.Lifts.some(lift => lift.LiftTypeId === liftType.Id))  // filter out lift types already in this workout
+                                     .map((liftType) => {
+                                       return {label: liftType.Name, value: liftType};
+                                     });
     // TODO: mark completed lts
   }
 
