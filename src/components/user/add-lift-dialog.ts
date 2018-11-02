@@ -2,7 +2,7 @@ import '@polymer/iron-flex-layout/iron-flex-layout.js';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-dialog/vaadin-dialog';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box-light';
+import '../../styles/vaadin-combo-box-item-styles';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, observe, property} from '@polymer/decorators';
@@ -13,8 +13,9 @@ import LiftType from '../../model/LiftType';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 import WorkoutType from '../../model/WorkoutType';
-import {getActiveItems} from '../../reducers/lift-type-reducer';
+import {allActiveIncompleteItemsSelector, getActiveItems} from '../../reducers/lift-type-reducer';
 import {itemsSelector as workoutTypeSelector} from '../../reducers/workout-type-reducer';
+import {IdMap, toDictionary} from '../../services/action-helpers';
 import {store} from '../../store';
 
 type WorkoutTypeComboBoxItem = {
@@ -24,7 +25,8 @@ type WorkoutTypeComboBoxItem = {
 
 type LiftTypeComboBoxItem = {
   label: string,
-  value: LiftType
+  value: LiftType,
+  completed: boolean
 };
 
 @customElement('add-lift-dialog') export class AddLiftDialog extends connectMixin
@@ -55,10 +57,12 @@ type LiftTypeComboBoxItem = {
       return;
     }
 
+    const incompleteLiftTypes: IdMap<LiftType> = toDictionary(allActiveIncompleteItemsSelector(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id, toDictionary(this.workout.Lifts)));
+
     this.liftTypeComboBoxItems = getActiveItems(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id)
                                      .filter(liftType => !this.workout.Lifts.some(lift => lift.LiftTypeId === liftType.Id))  // filter out lift types already in this workout
                                      .map((liftType) => {
-                                       return {label: liftType.Name, value: liftType};
+                                       return {label: liftType.Name, value: liftType, completed: !incompleteLiftTypes[liftType.Id]};
                                      });
     // TODO: mark completed lts
   }
@@ -83,7 +87,7 @@ type LiftTypeComboBoxItem = {
   }
 
   static get template() {
-    return html`<style>
+    return html`<style include="vaadin-combo-box-item-styles">
   :host {
     @apply --layout-horizontal;
   }
@@ -105,6 +109,19 @@ type LiftTypeComboBoxItem = {
             padding: 8px;
             @apply --layout-vertical;
         }
+
+        lift-type-item {
+          width:100%;
+          @apply --layout-horizontal;
+        }
+
+        hidden {
+          display:none !important;
+        }
+
+        svg {
+          @apply --layout-end-justified;
+        }
     </style>
     <main>
         <header>Add Lift</header>
@@ -118,7 +135,12 @@ type LiftTypeComboBoxItem = {
         <vaadin-combo-box-light disabled="[[!selectedWorkoutTypeComboBoxItem]]" items="[[liftTypeComboBoxItems]]" selected-item="{{selectedLiftTypeComboBoxItem}}">
             <vaadin-text-field placeholder="" label="Lift Type">
             <template>
-                <span>[[item.label]]</span>
+              <lift-type-item>
+                <label>[[item.label]]</label>
+                <svg style="width:16px;height:16px" viewBox="0 0 24 24">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
+                </svg>
+              <lift-type-item>
             </template>
             </vaadin-text-field>
         </vaadin-combo-box-light>

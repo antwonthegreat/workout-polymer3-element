@@ -54,7 +54,14 @@ import {AddLiftDialog} from './add-lift-dialog';
     if (!itemId)
       return;
 
+    this.newWorkoutName = '';
     store.dispatch<any>(selectEntityAsync(itemId));
+  }
+
+  @observe('selectedWorkout')
+  selectedWorkoutChanged(selectedWorkout: Workout) {
+    if (selectedWorkout && !this.newWorkoutName)
+      this.newWorkoutName = selectedWorkout.Name;
   }
 
   _stateChanged(state: ApplicationState) {
@@ -63,8 +70,6 @@ import {AddLiftDialog} from './add-lift-dialog';
     }
 
     this.selectedWorkout = selectedItemWithLiftsWithLiftTypeSelector(state);
-    if (this.selectedWorkout && !this.newWorkoutName)
-      this.newWorkoutName = this.selectedWorkout.Name;
   }
 
   protected _nameChanged(newWorkoutName: string, selectedWorkoutName: string) {

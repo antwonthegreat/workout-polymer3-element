@@ -4,7 +4,7 @@ import '@vaadin/vaadin-dialog/vaadin-dialog';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '@polymer/app-route/app-route.js';
 import '@polymer/app-route/app-location.js';
-import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box-light';
+import '../../styles/vaadin-combo-box-item-styles';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, property} from '@polymer/decorators';
@@ -66,7 +66,7 @@ type WorkoutTypeComboBoxItem = {
   }
 
   static get template() {
-    return html`<style>
+    return html`<style include="vaadin-combo-box-item-styles">
   :host {
     @apply --layout-horizontal;
   }
