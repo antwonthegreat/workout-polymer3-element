@@ -79,15 +79,15 @@ export const createItemAsync = (item: Partial<EntityType>) => {
     createdItem.WorkoutSets = [];
     const state = getState();
     const liftType = state.LiftTypeReducer && state.LiftTypeReducer.list && state.LiftTypeReducer.list[createdItem.LiftTypeId];
-    if (liftType) {
-      dispatch(LiftTypeActions.entityUpdated(liftType));
-      dispatch(updateLastCompletedDateAsync(liftType.WorkoutTypeId));
-    }
     // check incomplete lts, update wt completed if necceccary
 
     // test user to lift type added
     // test user to lift ftype deleted
     dispatch(Actions.entityCreated(createdItem));
+    if (liftType) {
+      dispatch(LiftTypeActions.entityUpdated(liftType));
+      dispatch(updateLastCompletedDateAsync(liftType.WorkoutTypeId));
+    }
   };
 };
 
