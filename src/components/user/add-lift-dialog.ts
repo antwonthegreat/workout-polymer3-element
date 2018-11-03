@@ -64,8 +64,6 @@ type LiftTypeComboBoxItem = {
                                        console.log(liftType.Id, incompleteLiftTypes[liftType.Id]);
                                        return {label: liftType.Name, value: {...liftType, completed: !incompleteLiftTypes[liftType.Id]}};
                                      });
-    console.log(this.liftTypeComboBoxItems);
-    // TODO: mark completed lts
   }
 
   protected _closeDialog() {
@@ -83,7 +81,8 @@ type LiftTypeComboBoxItem = {
   protected _addLift() {
     if (!this.selectedLiftTypeComboBoxItem)
       return;
-    store.dispatch<any>(createItemAsync({LiftTypeId: this.selectedLiftTypeComboBoxItem.value.Id, WorkoutId: this.workout.Id}));
+    store.dispatch<any>(createItemAsync({ LiftTypeId: this.selectedLiftTypeComboBoxItem.value.Id, WorkoutId: this.workout.Id }));
+    this.selectedLiftTypeComboBoxItem = null;
     this._closeDialog();
   }
 
