@@ -25,8 +25,7 @@ type WorkoutTypeComboBoxItem = {
 
 type LiftTypeComboBoxItem = {
   label: string,
-  value: LiftType,
-  completed: boolean
+  value: LiftType
 };
 
 @customElement('add-lift-dialog') export class AddLiftDialog extends connectMixin
@@ -57,13 +56,15 @@ type LiftTypeComboBoxItem = {
       return;
     }
 
-    const incompleteLiftTypes: IdMap<LiftType> = toDictionary(allActiveIncompleteItemsSelector(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id, toDictionary(this.workout.Lifts)));
+    const incompleteLiftTypes: IdMap<LiftType> = toDictionary(allActiveIncompleteItemsSelector(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id, toDictionary(this.workout.Lifts), false));
 
     this.liftTypeComboBoxItems = getActiveItems(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id)
                                      .filter(liftType => !this.workout.Lifts.some(lift => lift.LiftTypeId === liftType.Id))  // filter out lift types already in this workout
                                      .map((liftType) => {
-                                       return {label: liftType.Name, value: liftType, completed: !incompleteLiftTypes[liftType.Id]};
+                                       console.log(liftType.Id, incompleteLiftTypes[liftType.Id]);
+                                       return {label: liftType.Name, value: {...liftType, completed: !incompleteLiftTypes[liftType.Id]}};
                                      });
+    console.log(this.liftTypeComboBoxItems);
     // TODO: mark completed lts
   }
 
@@ -100,6 +101,15 @@ type LiftTypeComboBoxItem = {
   vaadin-button {
       cursor:pointer;
   }
+
+  lift-type-item {
+    width:100%;
+    @apply --layout-horizontal;
+  }
+
+  hidden {
+          display:none !important;
+        }
 </style>
 <vaadin-dialog no-close-on-esc no-close-on-outside-click opened="[[opened]]">
   <template>
@@ -117,6 +127,10 @@ type LiftTypeComboBoxItem = {
 
         hidden {
           display:none !important;
+        }
+
+        completed-mark {
+          display: inline;
         }
 
         svg {
@@ -137,9 +151,11 @@ type LiftTypeComboBoxItem = {
             <template>
               <lift-type-item>
                 <label>[[item.label]]</label>
-                <svg style="width:16px;height:16px" viewBox="0 0 24 24">
-                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
-                </svg>
+                <completed-mark hidden$="[[!item.value.completed]]">
+                  <svg style="width:16px;height:16px" viewBox="0 0 24 24">
+                    <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
+                  </svg>
+                </completed-mark>
               <lift-type-item>
             </template>
             </vaadin-text-field>
