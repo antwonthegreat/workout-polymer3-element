@@ -13,7 +13,7 @@ import LiftType from '../../model/LiftType';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 import WorkoutType from '../../model/WorkoutType';
-import {allActiveIncompleteItemsSelector, getActiveItems} from '../../reducers/lift-type-reducer';
+import {activeIncompleteItemSelector, allActiveIncompleteItemsSelector, getActiveItems} from '../../reducers/lift-type-reducer';
 import {itemsSelector as workoutTypeSelector} from '../../reducers/workout-type-reducer';
 import {IdMap, toDictionary} from '../../services/action-helpers';
 import {store} from '../../store';
@@ -33,7 +33,7 @@ type LiftTypeComboBoxItem = {
   @property() opened: boolean = false;
   @property() workoutTypeComboBoxItems: Array<WorkoutTypeComboBoxItem>;
   @property() liftTypeComboBoxItems: Array<LiftTypeComboBoxItem>;
-  @property() selectedWorkoutTypeComboBoxItem: WorkoutTypeComboBoxItem|null;
+  @property() selectedWorkoutTypeComboBoxItem: WorkoutTypeComboBoxItem|null = null;
   @property() selectedLiftTypeComboBoxItem: LiftTypeComboBoxItem|null;
   @property() workout: Workout;
 
@@ -55,13 +55,18 @@ type LiftTypeComboBoxItem = {
 
       return;
     }
+    const activeLiftTypes = getActiveItems(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id);
+    const liftTypesAlreadyInWorkout: IdMap<LiftType> = this.workout.Lifts.reduce((acc: IdMap<LiftType>, lift) => {
+      const liftType = activeLiftTypes.filter(liftType => liftType.Id === lift.LiftTypeId)[0];
+      if (liftType)
+        acc[liftType.Id] = liftType;
+      return acc;
+    }, {});
+    const incompleteLiftTypes: IdMap<LiftType> = toDictionary(allActiveIncompleteItemsSelector(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id, liftTypesAlreadyInWorkout, false));
 
-    const incompleteLiftTypes: IdMap<LiftType> = toDictionary(allActiveIncompleteItemsSelector(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id, toDictionary(this.workout.Lifts), false));
-
-    this.liftTypeComboBoxItems = getActiveItems(store.getState(), selectedWorkoutTypeComboBoxItem.value.Id)
+    this.liftTypeComboBoxItems = activeLiftTypes
                                      .filter(liftType => !this.workout.Lifts.some(lift => lift.LiftTypeId === liftType.Id))  // filter out lift types already in this workout
                                      .map((liftType) => {
-                                       console.log(liftType.Id, incompleteLiftTypes[liftType.Id]);
                                        return {label: liftType.Name, value: {...liftType, completed: !incompleteLiftTypes[liftType.Id]}};
                                      });
   }
@@ -81,9 +86,31 @@ type LiftTypeComboBoxItem = {
   protected _addLift() {
     if (!this.selectedLiftTypeComboBoxItem)
       return;
-    store.dispatch<any>(createItemAsync({ LiftTypeId: this.selectedLiftTypeComboBoxItem.value.Id, WorkoutId: this.workout.Id }));
+    store.dispatch<any>(createItemAsync({LiftTypeId: this.selectedLiftTypeComboBoxItem.value.Id, WorkoutId: this.workout.Id}));
     this.selectedLiftTypeComboBoxItem = null;
     this._closeDialog();
+  }
+
+  protected _workoutTypeSelected(selectedWorkoutTypeComboBoxItem: WorkoutTypeComboBoxItem): boolean {
+    console.log(!!selectedWorkoutTypeComboBoxItem);
+    return !!selectedWorkoutTypeComboBoxItem;
+  }
+
+  protected _randomClicked() {
+    if (!this.selectedWorkoutTypeComboBoxItem)
+      return;
+    const activeLiftTypes = getActiveItems(store.getState(), this.selectedWorkoutTypeComboBoxItem.value.Id);
+    const liftTypesAlreadyInWorkout: IdMap<LiftType> = this.workout.Lifts.reduce((acc: IdMap<LiftType>, lift) => {
+      const liftType = activeLiftTypes.filter(liftType => liftType.Id === lift.LiftTypeId)[0];
+      if (liftType)
+        acc[liftType.Id] = liftType;
+      return acc;
+    }, {});
+    const liftType = activeIncompleteItemSelector(store.getState(), this.selectedWorkoutTypeComboBoxItem.value.Id, liftTypesAlreadyInWorkout, false);
+    if (!liftType)
+      return;
+    console.log(liftType, this.workout.Lifts);
+    this.selectedLiftTypeComboBoxItem = this.liftTypeComboBoxItems.filter(item => item.value.Id === liftType.Id)[0];
   }
 
   static get template() {
@@ -106,6 +133,12 @@ type LiftTypeComboBoxItem = {
     @apply --layout-horizontal;
   }
 
+  lift-type-section {
+    @apply --layout-horizontal;
+    @apply --layout-end;
+  }
+
+
   hidden {
           display:none !important;
         }
@@ -118,6 +151,7 @@ type LiftTypeComboBoxItem = {
             padding: 8px;
             @apply --layout-vertical;
         }
+
 
         lift-type-item {
           width:100%;
@@ -145,20 +179,27 @@ type LiftTypeComboBoxItem = {
             </template>
             </vaadin-text-field>
         </vaadin-combo-box-light>
-        <vaadin-combo-box-light disabled="[[!selectedWorkoutTypeComboBoxItem]]" items="[[liftTypeComboBoxItems]]" selected-item="{{selectedLiftTypeComboBoxItem}}">
-            <vaadin-text-field placeholder="" label="Lift Type">
-            <template>
-              <lift-type-item>
-                <label>[[item.label]]</label>
-                <completed-mark hidden$="[[!item.value.completed]]">
-                  <svg style="width:16px;height:16px" viewBox="0 0 24 24">
-                    <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
-                  </svg>
-                </completed-mark>
-              <lift-type-item>
-            </template>
-            </vaadin-text-field>
-        </vaadin-combo-box-light>
+        <lift-type-section hidden$="[[!_workoutTypeSelected(selectedWorkoutTypeComboBoxItem)]]">
+          <vaadin-combo-box-light items="[[liftTypeComboBoxItems]]" selected-item="{{selectedLiftTypeComboBoxItem}}">
+              <vaadin-text-field placeholder="" label="Lift Type">
+              <template>
+                <lift-type-item>
+                  <label>[[item.label]]</label>
+                  <completed-mark hidden$="[[!item.value.completed]]">
+                    <svg style="width:16px;height:16px" viewBox="0 0 24 24">
+                      <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
+                    </svg>
+                  </completed-mark>
+                <lift-type-item>
+              </template>
+              </vaadin-text-field>
+          </vaadin-combo-box-light>
+          <vaadin-button on-click="_randomClicked">
+            <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+              <path d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M7,5A2,2 0 0,0 5,7A2,2 0 0,0 7,9A2,2 0 0,0 9,7A2,2 0 0,0 7,5M17,15A2,2 0 0,0 15,17A2,2 0 0,0 17,19A2,2 0 0,0 19,17A2,2 0 0,0 17,15M17,10A2,2 0 0,0 15,12A2,2 0 0,0 17,14A2,2 0 0,0 19,12A2,2 0 0,0 17,10M17,5A2,2 0 0,0 15,7A2,2 0 0,0 17,9A2,2 0 0,0 19,7A2,2 0 0,0 17,5M7,10A2,2 0 0,0 5,12A2,2 0 0,0 7,14A2,2 0 0,0 9,12A2,2 0 0,0 7,10M7,15A2,2 0 0,0 5,17A2,2 0 0,0 7,19A2,2 0 0,0 9,17A2,2 0 0,0 7,15Z" />
+            </svg>
+          </vaadin-button>
+        </lift-type-section>
         <action-buttons>
             <vaadin-button cancel on-click="_closeDialog">CANCEL</vaadin-button>
             <vaadin-button disabled="[[_saveDisabled(selectedLiftTypeComboBoxItem)]]" on-click="_addLift">Save</vaadin-button>
