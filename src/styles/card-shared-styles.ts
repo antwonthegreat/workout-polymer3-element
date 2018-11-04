@@ -3,16 +3,14 @@ import '@polymer/iron-flex-layout/iron-flex-layout.js';
 const documentContainer = document.createElement('div');
 documentContainer.setAttribute('style', 'display: none;');
 
-documentContainer.innerHTML = `<dom-module id="admin-card-shared-styles">
+documentContainer.innerHTML = `<dom-module id="card-shared-styles">
   <template>
     <style>
-      :host {
+      material-card {
         @apply --layout-vertical;
         background-color: #fff;
         border: 1px solid var(--app-border-color);
         border-radius: 4px;
-        width: 300px;
-        min-height: 375px;
         color: var(--app-text-color);
       }
 
@@ -28,16 +26,9 @@ documentContainer.innerHTML = `<dom-module id="admin-card-shared-styles">
         cursor: pointer;
       }
 
-      svg {
-        fill: var(--app-text-color-lighter);
-        width: 24px;
-        height: 24px;
-      }
-
       card-header-section {
         @apply --layout-vertical;
         padding: 16px;
-        min-height: 160px;
       }
 
       card-section {

@@ -17,7 +17,7 @@ beforeEach(() => {
 describe('workout type tests', () => {
   it('entitiesReceived sets list', () => {
     // Arrange
-    const items = {1: {Name: 'Chest', Id: 1, Workouts: [], LiftTypes: [], _odataInfo: {type: '', shortType: ''}}};
+    const items = {1: {Name: 'Chest', Id: 1}} as any;
     const store = createTestStore({WorkoutTypeReducer}, {});
 
     // Act

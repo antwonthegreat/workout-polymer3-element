@@ -1,8 +1,9 @@
 import '@polymer/iron-flex-layout/iron-flex-layout.js';
+import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box-light';
 
 const ComboboxStyles = document.createElement('template');
 
-ComboboxStyles.innerHTML = `<dom-module id="people-combo-box" theme-for="vaadin-combo-box-item">
+ComboboxStyles.innerHTML = `<dom-module id="minimal-combo-box-item" theme-for="vaadin-combo-box-item">
   <template>
     <style>
     :host::before {

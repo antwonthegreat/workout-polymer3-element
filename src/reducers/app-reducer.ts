@@ -1,6 +1,8 @@
 import {Reducer} from 'redux';
+import {createSelector} from 'reselect';
 
 import * as fromActions from '../actions/app-actions';
+import {ApplicationState} from '../model/state/ApplicationState';
 import {AppState} from '../model/state/AppState';
 
 const initialState = {
@@ -8,7 +10,8 @@ const initialState = {
   title: '',
   loadingCounter: 0,
   fatalErrorMessage: '',
-  snackbarErrorMessage: ''
+  snackbarErrorMessage: '',
+  navigateTo: null
 } as AppState;
 
 export const AppReducer: Reducer<AppState> = (state = initialState, action: fromActions.Actions) => {
@@ -31,7 +34,21 @@ export const AppReducer: Reducer<AppState> = (state = initialState, action: from
     case fromActions.DECREMENT_LOADING: {
       return {...state, loadingCounter: state.loadingCounter - 1};
     }
+    case fromActions.NAVIGATE: {
+      return {...state, navigateTo: action.payload};
+    }
     default:
       return state;
   }
 };
+
+export const getLoadingCounter = (state: ApplicationState): number => {
+  if (!state.AppReducer)
+    return 0;
+
+  return state.AppReducer.loadingCounter;
+};
+
+export const loadingSelector = createSelector(getLoadingCounter, (counter: number): boolean => {
+  return counter > 0;
+});

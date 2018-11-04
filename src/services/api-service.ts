@@ -5,6 +5,7 @@ import {IApiService} from './i-api-service';
 
 export default class ApiService implements IApiService {
   baseUrl: string = 'http://localhost:59465/';
+  // TODO: remove default once authorization works
   userId = 1;
 
   private _createUri(urlPath: string): string {
@@ -80,7 +81,7 @@ export default class ApiService implements IApiService {
     if (response.status === 201 || response.status === 200) {
       return Promise.resolve(json);
     } else {
-      return Promise.reject('Request error, please try again later.');
+      return Promise.reject(`Request error, please try again later.`);
     }
   }
 
@@ -100,7 +101,7 @@ export default class ApiService implements IApiService {
 
     let response;
     try {
-      response = await fetch(this._createUri(urlPath), {method: 'PATCH', body: JSON.stringify(body), headers: headers});
+      response = await fetch(this._createUri(urlPath), {method: 'PATCH', body: JSON.stringify(body), headers: {...headers, 'Prefer': 'return=representation'}});
     } catch (error) {
       if (error.message != null && error.message.indexOf('Failed to fetch') !== -1)
         return Promise.reject('Network error. Check your connection and try again.');
@@ -108,7 +109,7 @@ export default class ApiService implements IApiService {
       return Promise.reject(error);
     }
 
-    if (response.status === 204) {
+    if (response.status === 200) {
       return Promise.resolve();
     }
 
@@ -120,7 +121,49 @@ export default class ApiService implements IApiService {
         return Promise.reject(json.error.message);
       }
 
-      return Promise.reject('Request error, please try again later.');
+      return Promise.reject(`Request error ${response.status}, please try again later.`);
+    } catch (error) {
+      return Promise.reject(`The server sent back invalid JSON. ${error}`);
+    }
+  }
+
+  async patchReturnDtoAsync<T>(urlPath: string, body: any): Promise<T> {
+    // Add in the odata model info if it not already on the object
+    if (body._odataInfo && !body['@odata.type']) {
+      if (body._odataInfo.type) {
+        body['@odata.type'] = body._odataInfo.type;
+      }
+      delete body._odataInfo;
+    }
+    let headers: any = {'Content-Type': 'application/json', 'UserId': this.userId};
+    // headers['Authorization'] = `Bearer ${await this._getTokenAsync()}`;
+
+    // if (this.appNameKey !== '')
+    //   headers[this.appNameKey] = appName || this.appName;
+
+    let response;
+    try {
+      response = await fetch(this._createUri(urlPath), {method: 'PATCH', body: JSON.stringify(body), headers: {...headers, 'Prefer': 'return=representation'}});
+    } catch (error) {
+      if (error.message != null && error.message.indexOf('Failed to fetch') !== -1)
+        return Promise.reject('Network error. Check your connection and try again.');
+
+      return Promise.reject(error);
+    }
+
+    let json;
+    try {
+      json = await response.json();
+
+      if (json.error != null) {
+        return Promise.reject(json.error.message);
+      }
+
+      if (response.status === 200) {
+        return Promise.resolve(json);
+      } else {
+        return Promise.reject('Request error, please try again later.');
+      }
     } catch (error) {
       return Promise.reject(`The server sent back invalid JSON. ${error}`);
     }

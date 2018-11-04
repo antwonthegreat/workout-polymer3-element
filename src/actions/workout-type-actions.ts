@@ -1,13 +1,20 @@
 import {Action, ActionsUnion, createAction} from '@leavittsoftware/titanium-elements/lib/titanium-redux-action-helpers';
-import {StringMap} from '@leavittsoftware/titanium-elements/lib/titanium-types';
 import {ThunkDispatch} from 'redux-thunk';
 
 import {ActionInjectable} from '../model/ActionInjectable';
+import Lift from '../model/Lift';
+import LiftType from '../model/LiftType';
 import {ApplicationState} from '../model/state/ApplicationState';
+import UserToLiftType from '../model/UserToLiftType';
+import UserToWorkoutType from '../model/UserToWorkoutType';
 import WorkoutType from '../model/WorkoutType';
-import {IdMap, toDictionary} from '../services/action-helpers';
+import {IdMap} from '../services/action-helpers';
 
 import {Actions as AppActions} from './app-actions';
+import {Actions as LiftActions} from './lift-actions';
+import {Actions as LiftTypeActions} from './lift-type-actions';
+import {Actions as UserToLiftTypeActions} from './user-to-lift-type-actions';
+import {Actions as UserToWorkoutTypeActions} from './user-to-workout-type-actions';
 
 type EntityType = WorkoutType;
 const entityName = 'WORKOUT_TYPE';
@@ -29,12 +36,22 @@ export const getItemsAsync = () => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
     const appState = _getState().AppReducer;
-    const userId = (appState && appState.userId) || 0;
+    // TODO: remove default once authorization works
+    const userId = (appState && appState.userId) || 1;
 
-    let items: StringMap<EntityType>;
+    let items: Array<EntityType>;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = toDictionary((await apiService.getAsync<EntityType>(`${controllerName}?$select=Name,Id&$expand=LiftTypes($select=Name,Timed,WorkoutTypeId;$expand=UserToLiftTypes($select=UserId;$filter=UserId eq ${userId}))`, '')).toList());
+      items = (await apiService.getAsync<EntityType>(
+                   `${controllerName}?$select=Name,Id
+      &$expand=
+        LiftTypes($select=Id,Name,Timed,WorkoutTypeId;$expand=
+          UserToLiftTypes($select=Id,UserId,LiftTypeId;$filter=UserId eq ${userId})
+          ,Lifts($orderby=StartDate desc;$top=1)
+        )
+        ,UserToWorkoutTypes($select=Id,WorkoutTypeId,LastCompletedDate;$filter=UserId eq ${userId})`,
+                   ''))
+                  .toList();
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -45,7 +62,37 @@ export const getItemsAsync = () => {
       dispatch(AppActions.setSnackbarErrorMessage(`Error Getting ${entityName}s`));
       return;
     }
-    dispatch(Actions.entitiesReceived(items));
+    const workoutTypes: IdMap<WorkoutType> = {};
+    const liftTypes: IdMap<LiftType> = {};
+    const lifts: IdMap<Lift> = {};
+    const userToLiftTypes: IdMap<UserToLiftType> = {};
+    const userToWorkoutTypes: IdMap<UserToWorkoutType> = {};
+    items.forEach(workoutType => {
+      workoutType.UserToWorkoutTypes.forEach((userToWorkoutType) => {
+        userToWorkoutTypes[userToWorkoutType.WorkoutTypeId] = userToWorkoutType;
+      });
+      workoutType.LiftTypes.forEach((liftType) => {
+        liftType.UserToLiftTypes.forEach((userToLiftType) => {
+          userToLiftTypes[userToLiftType.Id] = userToLiftType;
+        });
+        liftType.Lifts.forEach((lift) => {
+          lifts[lift.Id] = lift;
+        });
+        const strippedLiftType = {...liftType};
+        strippedLiftType.Lifts = [];
+        strippedLiftType.UserToLiftTypes = [];
+        liftTypes[strippedLiftType.Id] = strippedLiftType;
+      });
+      const strippedworkoutType = {...workoutType};
+      strippedworkoutType.UserToWorkoutTypes = [];
+      strippedworkoutType.LiftTypes = [];
+      workoutTypes[strippedworkoutType.Id] = strippedworkoutType;
+    });
+    dispatch(LiftActions.entitiesReceived(lifts));
+    dispatch(LiftTypeActions.entitiesReceived(liftTypes));
+    dispatch(UserToLiftTypeActions.entitiesReceived(userToLiftTypes));
+    dispatch(UserToWorkoutTypeActions.entitiesReceived(userToWorkoutTypes));
+    dispatch(Actions.entitiesReceived(workoutTypes));
   };
 };
 

@@ -3,6 +3,7 @@ import {LiftState} from './LiftState';
 import {LiftTypeState} from './LiftTypeState';
 import {UserState} from './UserState';
 import {UserToLiftTypeState} from './UserToLiftTypeState';
+import {UserToWorkoutTypeState} from './UserToWorkoutTypeState';
 import {WorkoutSetState} from './WorkoutSetState';
 import {WorkoutState} from './WorkoutState';
 import {WorkoutTypeState} from './WorkoutTypeState';
@@ -15,5 +16,6 @@ export interface ApplicationState {
   LiftReducer?: LiftState;
   UserReducer?: UserState;
   UserToLiftTypeReducer?: UserToLiftTypeState;
+  UserToWorkoutTypeReducer?: UserToWorkoutTypeState;
   WorkoutSetReducer?: WorkoutSetState;
 }

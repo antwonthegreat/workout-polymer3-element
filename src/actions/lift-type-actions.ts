@@ -5,7 +5,7 @@ import {ThunkDispatch} from 'redux-thunk';
 import {ActionInjectable} from '../model/ActionInjectable';
 import LiftType from '../model/LiftType';
 import {ApplicationState} from '../model/state/ApplicationState';
-// import {IdMap, toDictionary} from '../services/action-helpers';
+import {IdMap} from '../services/action-helpers';
 
 import {Actions as AppActions} from './app-actions';
 
@@ -15,10 +15,12 @@ const controllerName = 'LiftTypes';
 
 export const ENTITY_CREATED = 'LIFT_TYPE_CREATED';
 export const ENTITY_UPDATED = 'LIFT_TYPE_UPDATED';
+export const ENTITIES_RECEIVED = 'LIFT_TYPES_RECEIVED';
 
 export const Actions = {
   entityCreated: (entity: EntityType) => createAction(ENTITY_CREATED, entity),
   entityUpdated: (entity: Partial<EntityType>) => createAction(ENTITY_UPDATED, entity),
+  entitiesReceived: (message: IdMap<EntityType>) => createAction(ENTITIES_RECEIVED, message),
 };
 
 export const createItemAsync = (item: Partial<EntityType>) => {
