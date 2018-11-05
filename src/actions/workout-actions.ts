@@ -5,6 +5,7 @@ import {ActionInjectable} from '../model/ActionInjectable';
 import Lift from '../model/Lift';
 import {ApplicationState} from '../model/state/ApplicationState';
 import Workout from '../model/Workout';
+import WorkoutSet from '../model/WorkoutSet';
 import WorkoutType from '../model/WorkoutType';
 import {getItems as getLiftTypes} from '../reducers/lift-type-reducer';
 import {IdMap} from '../services/action-helpers';
@@ -12,6 +13,7 @@ import {IdMap} from '../services/action-helpers';
 import {Actions as AppActions} from './app-actions';
 import {Actions as LiftActions} from './lift-actions';
 import {updateLastCompletedDateAsync} from './user-to-workout-type-actions';
+import {Actions as WorkoutSetActions} from './workout-set-actions';
 
 type EntityType = Workout;
 const entityName = 'Workout';
@@ -92,13 +94,18 @@ export const getItemExpandedIfNeededAsync = (id: number) => {
       return;
     }
     const lifts: IdMap<Lift> = {};
+    const workoutSets: IdMap<WorkoutSet> = {};
     item.Lifts.forEach(lift => {
-      lifts[lift.Id] = lift;
+      lifts[lift.Id] = {...lift, WorkoutSets: []};
+      lift.WorkoutSets.forEach(workoutSet => {
+        workoutSets[workoutSet.Id] = workoutSet;
+      });
     });
     const strippedWorkout = {...item};
     strippedWorkout.Lifts = [];
 
     dispatch(LiftActions.entitiesReceived(lifts));
+    dispatch(WorkoutSetActions.entitiesReceived(workoutSets));
     dispatch(Actions.entityUpdated({...item, Id: id, expanded: true}));
     dispatch(AppActions.navigate(`/user/workout/${id}`));
   };

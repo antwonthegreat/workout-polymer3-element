@@ -7,10 +7,12 @@ import LiftType from '../model/LiftType';
 import {ApplicationState} from '../model/state/ApplicationState';
 import {WorkoutState} from '../model/state/WorkoutState';
 import Workout from '../model/Workout';
+import WorkoutSet from '../model/WorkoutSet';
 import {IdMap} from '../services/action-helpers';
 
 import {getItems as getLifts} from './lift-reducer';
 import {getItems as getLiftTypes} from './lift-type-reducer';
+import {getItems as getWorkoutSets} from './workout-set-reducer';
 
 const initialState = {
   selectedId: null,
@@ -67,7 +69,7 @@ export const workoutWithLiftsWithLiftTypeSelector = createSelector(getItems, get
 
 // TODO: save as template
 
-export const selectedItemWithLiftsWithLiftTypeSelector = createSelector(getItems, getLifts, getLiftTypes, getSelectedId, (items: IdMap<Workout>, lifts: IdMap<Lift>, liftTypes: IdMap<LiftType>, selectedId: number): Workout|null => {
+export const selectedItemWithLiftsWithLiftTypeAndWorkoutSetsSelector = createSelector(getItems, getLifts, getLiftTypes, getSelectedId, getWorkoutSets, (items: IdMap<Workout>, lifts: IdMap<Lift>, liftTypes: IdMap<LiftType>, selectedId: number, workoutSets: IdMap<WorkoutSet>): Workout|null => {
   if (!selectedId)
     return null;
   const workout = items[selectedId];
@@ -77,7 +79,8 @@ export const selectedItemWithLiftsWithLiftTypeSelector = createSelector(getItems
     ...workout,
     Lifts: Object.keys(lifts)
                .map(key => {
-                 return {...lifts[key], LiftType: liftTypes[lifts[key].LiftTypeId]};
+                 const sets = Object.values(workoutSets).filter(workoutSet => workoutSet.LiftId === lifts[key].Id);
+                 return {...lifts[key], LiftType: liftTypes[lifts[key].LiftTypeId], WorkoutSets: sets};
                })
                .filter((lift: Lift) => lift.WorkoutId === workout.Id)
   };

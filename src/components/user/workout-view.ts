@@ -17,7 +17,7 @@ import {selectEntityAsync, updateItemAsync} from '../../actions/workout-actions'
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 // import {loadingSelector} from '../../reducers/app-reducer';
-import {selectedItemWithLiftsWithLiftTypeSelector} from '../../reducers/workout-reducer';
+import {selectedItemWithLiftsWithLiftTypeAndWorkoutSetsSelector} from '../../reducers/workout-reducer';
 import {store} from '../../store';
 import {AddLiftDialog} from './add-lift-dialog';
 
@@ -69,7 +69,7 @@ import {AddLiftDialog} from './add-lift-dialog';
       return;
     }
 
-    this.selectedWorkout = selectedItemWithLiftsWithLiftTypeSelector(state);
+    this.selectedWorkout = selectedItemWithLiftsWithLiftTypeAndWorkoutSetsSelector(state);
   }
 
   protected _nameChanged(newWorkoutName: string, selectedWorkoutName: string) {
@@ -125,6 +125,10 @@ import {AddLiftDialog} from './add-lift-dialog';
 
   svg {
     fill: #fff;
+  }
+
+  lift-item {
+    margin:4px;
   }
 
   [hidden] {

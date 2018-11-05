@@ -14,6 +14,11 @@ documentContainer.innerHTML = `<dom-module id="card-shared-styles">
         color: var(--app-text-color);
       }
 
+      action-buttons {
+        @apply --layout-horizontal;
+        @apply --layout-end-justified;
+      }
+
       hr {
         border:0;
         border-bottom: 1px solid var(--app-border-color);
