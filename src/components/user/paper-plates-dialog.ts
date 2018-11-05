@@ -4,10 +4,12 @@ import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-tabs/vaadin-tabs';
 import '@vaadin/vaadin-tabs/vaadin-tab';
 import '../../styles/modal-shared-styles';
+import './manual-entry';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
-import {customElement, property} from '@polymer/decorators';
+import {customElement, observe, property} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
+
 import {ApplicationState} from '../../model/state/ApplicationState';
 import WorkoutSet from '../../model/WorkoutSet';
 import {store} from '../../store';
@@ -18,6 +20,18 @@ import {store} from '../../store';
   @property() workoutSet: WorkoutSet;
   @property() editingReps: boolean;
   @property() selectedIndex: number|null;
+  @property() originalValue: number|null;
+  @property() value: number|null;
+  @property() displayValue: string;
+
+  @observe('workoutSet.*', 'editingReps')
+  protected _workoutSetModified() {
+    if (!this.workoutSet)
+      return;
+
+    this.value = this.editingReps ? this.workoutSet.Reps : this.workoutSet.Weight;
+    this.originalValue = this.value;
+  }
 
   _stateChanged(state: ApplicationState) {
     if (!state.AppReducer) {
@@ -25,7 +39,14 @@ import {store} from '../../store';
     }
   }
 
-  protected _closeDialog(_e: any) {
+  protected _cancel() {
+    this.value = this.originalValue;
+    this._closeDialog();
+  }
+
+  protected _closeDialog() {
+    // todo: get cancel to reset value
+    this.set('value', this.editingReps ? this.workoutSet.Reps : this.workoutSet.Weight);
     this.opened = false;
   }
 
@@ -39,6 +60,10 @@ import {store} from '../../store';
     this.editingReps = true;
     this.opened = true;
     this.selectedIndex = 2;
+  }
+
+  protected _isEqual(a: number, b: number): boolean {
+    return a === b;
   }
 
   static get template() {
@@ -77,8 +102,11 @@ import {store} from '../../store';
         <vaadin-tab>Dumbbell</vaadin-tab>
         <vaadin-tab>Manual</vaadin-tab>
     </vaadin-tabs>
+    <barbell-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,0)]]">B</barbell-entry>
+    <dumbbell-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,1)]]">D</dumbbell-entry>
+    <manual-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,2)]]">M</manual-entry>
     <action-buttons>
-        <vaadin-button cancel on-click="_closeDialog">CANCEL</vaadin-button>
+        <vaadin-button cancel on-click="_cancel">CANCEL</vaadin-button>
         <vaadin-button on-click="_saveWorkoutSet">Save</vaadin-button>
     </action-buttons>
   </template>

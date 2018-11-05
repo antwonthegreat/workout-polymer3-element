@@ -41,6 +41,10 @@ documentContainer.innerHTML = `<dom-module id="modal-shared-styles">
         --material-primary-text-color: #757575;
       }
 
+      [hidden] {
+        display:none;
+      }
+
       [invisible] {
         visibility: hidden;
       }
