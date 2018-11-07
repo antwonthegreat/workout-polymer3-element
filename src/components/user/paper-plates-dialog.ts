@@ -6,6 +6,7 @@ import '@vaadin/vaadin-tabs/vaadin-tab';
 import '../../styles/modal-shared-styles';
 import './manual-entry';
 import './dumbbell-entry';
+import './barbell-entry';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, observe, property} from '@polymer/decorators';
@@ -96,7 +97,7 @@ import {store} from '../../store';
         }
 
         main {
-          height:160px;
+          height:260px;
         }
 
         hidden {
@@ -109,9 +110,9 @@ import {store} from '../../store';
         <vaadin-tab>Manual</vaadin-tab>
     </vaadin-tabs>
     <main>
-      <barbell-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,0)]]">B</barbell-entry>
-      <dumbbell-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,1)]]">D</dumbbell-entry>
-      <manual-entry editing-reps="[[editingReps]]" value="{{value}}" hidden$="[[!_isEqual(selectedIndex,2)]]">M</manual-entry>
+      <barbell-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,0)]]"></barbell-entry>
+      <dumbbell-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,1)]]"></dumbbell-entry>
+      <manual-entry editing-reps="[[editingReps]]" value="{{value}}" hidden$="[[!_isEqual(selectedIndex,2)]]"></manual-entry>
     </main>
     <action-buttons>
           <vaadin-button cancel on-click="_cancel">CANCEL</vaadin-button>
