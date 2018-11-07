@@ -8,10 +8,10 @@ import {html, PolymerElement} from '@polymer/polymer';
 export class ManualEntry extends PolymerElement {
   @property({type: Number, notify: true}) value: number|null;
   @property() displayValue: string;
+  @property() editingReps: boolean;
 
   @observe('value')
   protected valueChanged(value: number|null) {
-    console.log(value);
     this.displayValue = `${value}` || '0';
   }
 
@@ -43,7 +43,7 @@ export class ManualEntry extends PolymerElement {
   }
 
   static get template() {
-    return html`<style include="modal-shared-styles">
+    return html`<style>
       :host {
         @apply --layout-vertical;
         @apply --layout-center;
@@ -82,7 +82,7 @@ export class ManualEntry extends PolymerElement {
       <button-row>
         <vaadin-button on-click="_backspacePressed">B</vaadin-button>
         <vaadin-button on-click="_numberPressed" value="0">0</vaadin-button>
-        <vaadin-button on-click="_decimalPressed">.</vaadin-button>
+        <vaadin-button disabled$="[[editingReps]]" on-click="_decimalPressed">.</vaadin-button>
       </button-row>
     </button-area>
     `;

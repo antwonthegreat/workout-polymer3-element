@@ -5,6 +5,7 @@ import '@vaadin/vaadin-tabs/vaadin-tabs';
 import '@vaadin/vaadin-tabs/vaadin-tab';
 import '../../styles/modal-shared-styles';
 import './manual-entry';
+import './dumbbell-entry';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, observe, property} from '@polymer/decorators';
@@ -75,22 +76,27 @@ import {store} from '../../store';
 <vaadin-dialog no-close-on-esc no-close-on-outside-click opened="[[opened]]">
   <template>
     <style >
-        :host {
+        vaadin-dialog {
           @apply --layout-vertical;
-        }
-        paper-plates {
-            display: block;
-            padding: 8px;
-            @apply --layout-vertical;
+          min-height: 320px;
         }
 
         action-buttons {
           @apply --layout-horizontal;
-          @apply --layout-end-justified;
+          @apply --layout-flex-2;
+        }
+
+        action-wrapper {
+
+          @apply --layout-vertical;
         }
 
         vaadin-button {
             cursor:pointer;
+        }
+
+        main {
+          height:160px;
         }
 
         hidden {
@@ -102,12 +108,14 @@ import {store} from '../../store';
         <vaadin-tab>Dumbbell</vaadin-tab>
         <vaadin-tab>Manual</vaadin-tab>
     </vaadin-tabs>
-    <barbell-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,0)]]">B</barbell-entry>
-    <dumbbell-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,1)]]">D</dumbbell-entry>
-    <manual-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,2)]]">M</manual-entry>
+    <main>
+      <barbell-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,0)]]">B</barbell-entry>
+      <dumbbell-entry value="{{value}}" hidden$="[[!_isEqual(selectedIndex,1)]]">D</dumbbell-entry>
+      <manual-entry editing-reps="[[editingReps]]" value="{{value}}" hidden$="[[!_isEqual(selectedIndex,2)]]">M</manual-entry>
+    </main>
     <action-buttons>
-        <vaadin-button cancel on-click="_cancel">CANCEL</vaadin-button>
-        <vaadin-button on-click="_saveWorkoutSet">Save</vaadin-button>
+          <vaadin-button cancel on-click="_cancel">CANCEL</vaadin-button>
+          <vaadin-button on-click="_saveWorkoutSet">SAVE</vaadin-button>
     </action-buttons>
   </template>
 </vaadin-dialog>
