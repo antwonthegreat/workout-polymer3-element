@@ -8,16 +8,15 @@ import './manual-entry';
 import './dumbbell-entry';
 import './barbell-entry';
 
-import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, observe, property} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
-import {ApplicationState} from '../../model/state/ApplicationState';
+import {updateItemAsync} from '../../actions/workout-set-actions';
 import WorkoutSet from '../../model/WorkoutSet';
 import {store} from '../../store';
 
-@customElement('paper-plates-dialog') export class PaperPlatesDialog extends connectMixin
-(store, PolymerElement) {
+@customElement('paper-plates-dialog')
+export class PaperPlatesDialog extends PolymerElement {
   @property() opened: boolean = false;
   @property() workoutSet: WorkoutSet;
   @property() editingReps: boolean;
@@ -33,12 +32,6 @@ import {store} from '../../store';
 
     this.value = this.editingReps ? this.workoutSet.Reps : this.workoutSet.Weight;
     this.originalValue = this.value;
-  }
-
-  _stateChanged(state: ApplicationState) {
-    if (!state.AppReducer) {
-      return;
-    }
   }
 
   protected _cancel() {
@@ -66,6 +59,18 @@ import {store} from '../../store';
 
   protected _isEqual(a: number, b: number): boolean {
     return a === b;
+  }
+
+  protected _saveWorkoutSet() {
+    if (!this.workoutSet || !this.value)
+      return;
+
+    let delta: Partial<WorkoutSet> = {};
+    if (this.editingReps)
+      delta.Reps = this.value;
+    else
+      delta.Weight = this.value;
+    store.dispatch<any>(updateItemAsync(this.workoutSet.Id, delta));
   }
 
   static get template() {
@@ -116,7 +121,7 @@ import {store} from '../../store';
     </main>
     <action-buttons>
           <vaadin-button cancel on-click="_cancel">CANCEL</vaadin-button>
-          <vaadin-button on-click="_saveWorkoutSet">SAVE</vaadin-button>
+          <vaadin-button disabled$="[[_isEqual(value, originalValue)]]" on-click="_saveWorkoutSet">SAVE</vaadin-button>
     </action-buttons>
   </template>
 </vaadin-dialog>
