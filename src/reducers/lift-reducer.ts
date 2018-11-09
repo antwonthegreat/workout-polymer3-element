@@ -6,6 +6,7 @@ import Lift from '../model/Lift';
 import LiftType from '../model/LiftType';
 import {ApplicationState} from '../model/state/ApplicationState';
 import {LiftState} from '../model/state/LiftState';
+import {getItems as getWorkoutSets} from '../reducers/workout-set-reducer';
 import {IdMap} from '../services/action-helpers';
 import {getItems as getLiftTypes} from './lift-type-reducer';
 
@@ -41,6 +42,26 @@ export const liftsWithLiftTypeSelector = createSelector(getItems, getLiftTypes, 
     return {...lift, LiftType: liftTypes[lift.LiftTypeId] || null};
   });
 });
+
+export const getLastLiftCompletedWithSets = (state: ApplicationState, liftTypeId: number, completedBefore: string): Lift|null => {
+  const lifts = state.LiftReducer && state.LiftReducer.list || {};
+
+  const workoutsSetDictionary = getWorkoutSets(state);
+
+  const lastLift: null|Lift = Object.keys(lifts).reduce((lastLift: null|Lift, key) => {
+    const lift: Lift = lifts[key];
+    const workoutSets = Object.values(workoutsSetDictionary).filter(workoutSet => workoutSet.LiftId === lift.Id);
+    if (lift.LiftTypeId !== liftTypeId || workoutSets.length === 0 || !completedBefore || new Date(lift.StartDate).getTime() >= new Date(completedBefore).getTime())
+      return lastLift;
+
+    const lastLiftMilliseconds = lastLift ? new Date(lastLift.StartDate).getTime() : 0;
+    const liftMilliseconds = new Date(lift.StartDate).getTime();
+
+    return lastLiftMilliseconds > liftMilliseconds ? lastLift : {...lift, WorkoutSets: workoutSets};
+  }, null);
+
+  return lastLift;
+};
 
 export const getLastLiftCompletedDate = (state: ApplicationState, liftTypeId: number): Date|null => {
   const lifts = state.LiftReducer && state.LiftReducer.list || {};

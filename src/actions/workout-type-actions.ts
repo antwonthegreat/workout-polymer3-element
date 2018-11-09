@@ -7,6 +7,7 @@ import LiftType from '../model/LiftType';
 import {ApplicationState} from '../model/state/ApplicationState';
 import UserToLiftType from '../model/UserToLiftType';
 import UserToWorkoutType from '../model/UserToWorkoutType';
+import WorkoutSet from '../model/WorkoutSet';
 import WorkoutType from '../model/WorkoutType';
 import {IdMap} from '../services/action-helpers';
 
@@ -15,6 +16,7 @@ import {Actions as LiftActions} from './lift-actions';
 import {Actions as LiftTypeActions} from './lift-type-actions';
 import {Actions as UserToLiftTypeActions} from './user-to-lift-type-actions';
 import {Actions as UserToWorkoutTypeActions} from './user-to-workout-type-actions';
+import {Actions as WorkoutSetActions} from './workout-set-actions';
 
 type EntityType = WorkoutType;
 const entityName = 'WORKOUT_TYPE';
@@ -47,7 +49,7 @@ export const getItemsAsync = () => {
       &$expand=
         LiftTypes($select=Id,Name,Timed,WorkoutTypeId;$expand=
           UserToLiftTypes($select=Id,UserId,LiftTypeId;$filter=UserId eq ${userId})
-          ,Lifts($orderby=StartDate desc;$top=1)
+          ,Lifts($expand=WorkoutSets;$orderby=StartDate desc;$top=2)
         )
         ,UserToWorkoutTypes($select=Id,WorkoutTypeId,LastCompletedDate;$filter=UserId eq ${userId})`,
                    ''))
@@ -67,6 +69,7 @@ export const getItemsAsync = () => {
     const lifts: IdMap<Lift> = {};
     const userToLiftTypes: IdMap<UserToLiftType> = {};
     const userToWorkoutTypes: IdMap<UserToWorkoutType> = {};
+    const workoutSets: IdMap<WorkoutSet> = {};
     items.forEach(workoutType => {
       workoutType.UserToWorkoutTypes.forEach((userToWorkoutType) => {
         userToWorkoutTypes[userToWorkoutType.WorkoutTypeId] = userToWorkoutType;
@@ -77,6 +80,9 @@ export const getItemsAsync = () => {
         });
         liftType.Lifts.forEach((lift) => {
           lifts[lift.Id] = lift;
+          lift.WorkoutSets.forEach(workoutSet => {
+            workoutSets[workoutSet.Id] = workoutSet;
+          });
         });
         const strippedLiftType = {...liftType};
         strippedLiftType.Lifts = [];
@@ -90,6 +96,7 @@ export const getItemsAsync = () => {
     });
     dispatch(LiftActions.entitiesReceived(lifts));
     dispatch(LiftTypeActions.entitiesReceived(liftTypes));
+    dispatch(WorkoutSetActions.entitiesReceived(workoutSets));
     dispatch(UserToLiftTypeActions.entitiesReceived(userToLiftTypes));
     dispatch(UserToWorkoutTypeActions.entitiesReceived(userToWorkoutTypes));
     dispatch(Actions.entitiesReceived(workoutTypes));

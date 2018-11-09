@@ -4,24 +4,59 @@ import '@polymer/iron-collapse/iron-collapse';
 import './workout-set-item';
 import '../../styles/card-shared-styles.js';
 
+import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, property} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
+import {createItemAsync as createWorkoutSetAsync} from '../../actions/workout-set-actions';
 import Lift from '../../model/Lift';
+import {ApplicationState} from '../../model/state/ApplicationState';
+import WorkoutSet from '../../model/WorkoutSet';
+import {getLastLiftCompletedWithSets} from '../../reducers/lift-reducer';
 // import {Actions} from '../../actions/lift-actions';
-// import {store} from '../../store';
+import {store} from '../../store';
 
-@customElement('lift-item')
-export class WorkoutView extends PolymerElement {
+@customElement('lift-item') export class WorkoutView extends connectMixin
+(store, PolymerElement) {
   @property() lift: Lift;
   @property() expanded: boolean = false;
+  @property() lastCompletedLift: Lift|null;
 
   protected _headerClicked() {
     this.expanded = !this.expanded;
   }
 
+  protected _addClicked(event: any) {
+    event.stopPropagation();
+    let newWorkoutSet: Partial<WorkoutSet> = {LiftId: this.lift.Id};
+    if (this.lift && this.lift.WorkoutSets.length) {
+      const lastSetIndex = this.lift.WorkoutSets.length - 1;
+      newWorkoutSet.Reps = this.lift.WorkoutSets[lastSetIndex].Reps;
+      newWorkoutSet.Weight = this.lift.WorkoutSets[lastSetIndex].Weight;
+    } else if (this.lastCompletedLift && this.lastCompletedLift.WorkoutSets.length) {
+      newWorkoutSet.Reps = this.lastCompletedLift.WorkoutSets[0].Reps;
+      newWorkoutSet.Weight = this.lastCompletedLift.WorkoutSets[0].Weight;
+    }
+    store.dispatch<any>(createWorkoutSetAsync(newWorkoutSet));
+  }
+
   protected _deleteClicked(event: any) {
     event.stopPropagation();
+  }
+
+  _stateChanged(state: ApplicationState) {
+    this.lastCompletedLift = getLastLiftCompletedWithSets(state, this.lift.LiftTypeId, this.lift.StartDate);
+    console.log(this.lastCompletedLift);
+  }
+
+  protected _formatLastCompletedLift(lastCompletedLift: Lift|null) {
+    if (!lastCompletedLift)
+      return 'Never';
+
+    if (lastCompletedLift.WorkoutSets.every(workoutSet => workoutSet.Weight === lastCompletedLift.WorkoutSets[0].Weight))
+      return `${lastCompletedLift.WorkoutSets.map(workoutSet => workoutSet.Reps).join(',')} x ${lastCompletedLift.WorkoutSets[0].Weight}`;
+    else
+      return lastCompletedLift.WorkoutSets.map(workoutSet => `${workoutSet.Reps} x ${workoutSet.Weight}`).join(', ');
   }
 
   static get template() {
@@ -73,6 +108,7 @@ export class WorkoutView extends PolymerElement {
           </header>
           <iron-collapse opened="[[expanded]]">
             <lift-details>
+              <last-completed-lift>Previous Attempt : [[_formatLastCompletedLift(lastCompletedLift)]]</last-completed-lift>
               <template is="dom-repeat" items="[[lift.WorkoutSets]]">
                 <workout-set-item workout-set="[[item]]"></workout-set-item>
               </template>

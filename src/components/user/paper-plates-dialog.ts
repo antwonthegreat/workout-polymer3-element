@@ -71,6 +71,7 @@ export class PaperPlatesDialog extends PolymerElement {
     else
       delta.Weight = this.value;
     store.dispatch<any>(updateItemAsync(this.workoutSet.Id, delta));
+    this.opened = false;
   }
 
   static get template() {
