@@ -3,17 +3,19 @@ import '@vaadin/vaadin-button';
 import '@polymer/iron-collapse/iron-collapse';
 import './workout-set-item';
 import '../../styles/card-shared-styles.js';
+import '@vaadin/vaadin-dialog/vaadin-dialog';
+import '../../styles/modal-shared-styles';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, property} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
+import {deleteItemAsync} from '../../actions/lift-actions';
 import {createItemAsync as createWorkoutSetAsync} from '../../actions/workout-set-actions';
 import Lift from '../../model/Lift';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import WorkoutSet from '../../model/WorkoutSet';
 import {getLastLiftCompletedWithSets} from '../../reducers/lift-reducer';
-// import {Actions} from '../../actions/lift-actions';
 import {store} from '../../store';
 
 @customElement('lift-item') export class WorkoutView extends connectMixin
@@ -21,6 +23,7 @@ import {store} from '../../store';
   @property() lift: Lift;
   @property() expanded: boolean = false;
   @property() lastCompletedLift: Lift|null;
+  @property() confirmOpened: boolean = false;
 
   protected _headerClicked() {
     this.expanded = !this.expanded;
@@ -42,6 +45,14 @@ import {store} from '../../store';
 
   protected _deleteClicked(event: any) {
     event.stopPropagation();
+    if (this.lift.WorkoutSets.length)
+      this.openDialog();
+    else
+      this._deleteLift();
+  }
+
+  private _deleteLift() {
+    store.dispatch<any>(deleteItemAsync(this.lift.Id));
   }
 
   _stateChanged(state: ApplicationState) {
@@ -58,8 +69,23 @@ import {store} from '../../store';
       return lastCompletedLift.WorkoutSets.map(workoutSet => `${workoutSet.Reps} x ${workoutSet.Weight}`).join(', ');
   }
 
+  protected _cancelDialog() {
+    this.confirmOpened = false;
+  }
+
+  protected _confirmDialog() {
+    this._deleteLift();
+    this.confirmOpened = false;
+  }
+
+  public openDialog() {
+    this.confirmOpened = true;
+  }
+
   static get template() {
-    return html`<style include="card-shared-styles">
+    return html`
+    <style include="modal-shared-styles"></style>
+    <style include="card-shared-styles">
           material-card {
             @apply --layout-vertical;
             background-color:#cccccc;
@@ -118,6 +144,17 @@ import {store} from '../../store';
             <lift-details>
           </iron-collapse>
         </material-card>
+        <vaadin-dialog no-close-on-esc no-close-on-outside-click opened="[[confirmOpened]]">
+          <template>
+            <main>
+              Are you sure you want to delete [[lift.LiftType.Name]]?
+            </main>
+            <action-buttons>
+              <vaadin-button cancel on-click="_cancelDialog">CANCEL</vaadin-button>
+              <vaadin-button on-click="_confirmDialog">OK</vaadin-button>
+            </action-buttons>
+          </template>
+        </vaadin-dialog>
             `;
   }
 }
