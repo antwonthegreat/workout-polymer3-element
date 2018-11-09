@@ -46,7 +46,6 @@ import {store} from '../../store';
 
   _stateChanged(state: ApplicationState) {
     this.lastCompletedLift = getLastLiftCompletedWithSets(state, this.lift.LiftTypeId, this.lift.StartDate);
-    console.log(this.lastCompletedLift);
   }
 
   protected _formatLastCompletedLift(lastCompletedLift: Lift|null) {

@@ -6,7 +6,10 @@ import './paper-plates-dialog';
 import {customElement, property, query} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
+import {deleteItemAsync} from '../../actions/workout-set-actions';
 import WorkoutSet from '../../model/WorkoutSet';
+import {store} from '../../store';
+
 import {PaperPlatesDialog} from './paper-plates-dialog';
 
 @customElement('workout-set-item')
@@ -20,6 +23,10 @@ export class WorkoutSetItem extends PolymerElement {
 
   protected _repsClicked() {
     this.paperPlatesDialog.openDialogForReps();
+  }
+
+  protected _deleteClicked() {
+    store.dispatch<any>(deleteItemAsync(this.workoutSet.Id));
   }
 
   static get template() {
