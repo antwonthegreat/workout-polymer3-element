@@ -7,10 +7,10 @@ import '@polymer/app-route/app-location.js';
 import '../../styles/vaadin-combo-box-item-styles';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
-import {customElement, property} from '@polymer/decorators';
+import {customElement, observe, property} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
-import {createItemAsync, getItemExpandedIfNeededAsync, getItemsAsync} from '../../actions/workout-actions';
+import {createItemAsync, deleteItemAsync, getItemExpandedIfNeededAsync, getItemsAsync} from '../../actions/workout-actions';
 import Lift from '../../model/Lift';
 import LiftType from '../../model/LiftType';
 import {ApplicationState} from '../../model/state/ApplicationState';
@@ -36,9 +36,13 @@ type WorkoutTypeComboBoxItem = {
   @property() workouts: Array<Workout>;
   @property() workoutTypeComboBoxItems: Array<WorkoutTypeComboBoxItem>;
   @property() isLoading: boolean;
+  @property() isActive: boolean;
   @property() blankDialogOpened: boolean;
   @property() randomDialogOpened: boolean;
   @property() templateDialogOpened: boolean;
+  @property() confirmDeleteOpened: boolean;
+  @property() friendlyWorkoutName: string;
+  @property() deleteId: number|null;
   @property() newWorkoutName: string;
   @property() randomLiftCount: string;
   @property() selectedWorkoutTypeComboBoxItem: WorkoutTypeComboBoxItem|null;
@@ -63,6 +67,16 @@ type WorkoutTypeComboBoxItem = {
     });
     // this.t = itemsByWorkoutTypesSelector(state)[6].LastCompletedDate;
     // console.log(allActiveIncompleteItemsSelector(state, 6, [], false));
+  }
+
+  scrollListener = this._handleWorkoutSummaryTouchEnd.bind(this);
+  @observe('isActive')
+  isActiveChanged(isActive: boolean) {
+    if (isActive) {
+      window.addEventListener('scroll', this.scrollListener);
+    } else {
+      window.removeEventListener('scroll', this.scrollListener);
+    }
   }
 
   static get template() {
@@ -133,13 +147,13 @@ type WorkoutTypeComboBoxItem = {
 </style>
 
 <app-location route="{{route}}"></app-location>
-<app-route route="{{route}}" pattern="/user/:page" data="{{routeData}}"> </app-route>
+<app-route route="{{route}}" pattern="/user/workout-list" data="{{routeData}}" active="{{isActive}}"></app-route>
 <main-content>
   <header>
     <h1>My Workouts</h1>
   </header>
   <template is="dom-repeat" items="[[workouts]]">
-    <workout-summary on-click="_handleWorkoutSummaryClick">
+    <workout-summary on-touchstart="_handleWorkoutSummaryTouchStart" on-touch-move="_handleWorkoutSummaryTouchEnd" on-touchcancel="_handleWorkoutSummaryTouchEnd" on-touchend="_handleWorkoutSummaryTouchEnd" on-click="_handleWorkoutSummaryClick">
       <workout-name>[[item.Name]] [[item.StartDate]]</workout-name>
       <workout-date>[[_formatDate(item.StartDate)]]</workout-date>
       <ul hidden$="[[!item.Lifts.0]">
@@ -212,7 +226,63 @@ type WorkoutTypeComboBoxItem = {
     </main>
   </template>
 </vaadin-dialog>
+<vaadin-dialog no-close-on-outside-click opened="{{confirmDeleteOpened}}" >
+  <template>
+    <style>
+      :host {
+        @apply --layout-vertical;
+      }
+
+      main {
+        display: block;
+        padding: 8px;
+        @apply --layout-vertical;
+      }
+    </style>
+    <main>
+      Are you sure you want to delete [[friendlyWorkoutName]]?
+      <action-buttons>
+        <vaadin-button cancel on-click="_closeConfirmDialog">Cancel</vaadin-button>
+        <vaadin-button on-click="_confirmDeleteDialog">Ok</vaadin-button>
+      </action-buttons>
+    </main>
+  </template>
+</vaadin-dialog>
 `;
+  }
+
+  private _pressTimer: number;
+
+  protected _handleWorkoutSummaryTouchStart(event: any) {
+    this._pressTimer = window.setTimeout(() => {
+      const workout = event.model.item;
+      this.friendlyWorkoutName = workout.Name ? `${workout.Name}` : 'this workout';
+      this.deleteId = workout.Id;
+      this.confirmDeleteOpened = true;
+    }, 600);
+  }
+
+  protected _handleWorkoutSummaryClick(event: any) {
+    event.preventDefault();
+    if (!this.confirmDeleteOpened) {
+      clearTimeout(this._pressTimer);
+      store.dispatch<any>(getItemExpandedIfNeededAsync(event.model.item.Id));
+    }
+  }
+
+  protected _handleWorkoutSummaryTouchEnd(_event: any) {
+    clearTimeout(this._pressTimer);
+  }
+
+  protected _closeConfirmDialog() {
+    this.confirmDeleteOpened = false;
+  }
+
+  protected _confirmDeleteDialog() {
+    if (this.deleteId)
+      store.dispatch<any>(deleteItemAsync(this.deleteId));
+    this.deleteId = null;
+    this._closeConfirmDialog();
   }
 
   _handleBlankClick() {
@@ -256,9 +326,6 @@ type WorkoutTypeComboBoxItem = {
     this.randomDialogOpened = false;
   }
 
-  _handleWorkoutSummaryClick(event: any) {
-    store.dispatch<any>(getItemExpandedIfNeededAsync(event.model.item.Id));
-  }
   // TODO:clear modal inputs on success
   _formatDate(date: string): string {
     return new Date(date).toLocaleDateString();
