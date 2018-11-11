@@ -92,7 +92,6 @@ type LiftTypeComboBoxItem = {
   }
 
   protected _workoutTypeSelected(selectedWorkoutTypeComboBoxItem: WorkoutTypeComboBoxItem): boolean {
-    console.log(!!selectedWorkoutTypeComboBoxItem);
     return !!selectedWorkoutTypeComboBoxItem;
   }
 
@@ -109,7 +108,6 @@ type LiftTypeComboBoxItem = {
     const liftType = activeIncompleteItemSelector(store.getState(), this.selectedWorkoutTypeComboBoxItem.value.Id, liftTypesAlreadyInWorkout, false);
     if (!liftType)
       return;
-    console.log(liftType, this.workout.Lifts);
     this.selectedLiftTypeComboBoxItem = this.liftTypeComboBoxItems.filter(item => item.value.Id === liftType.Id)[0];
   }
 

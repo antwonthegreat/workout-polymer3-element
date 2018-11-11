@@ -106,6 +106,7 @@ type WorkoutTypeComboBoxItem = {
 
   workout-summary {
     @apply --layout-vertical;
+    position:relative;
     background-color:#fff;
     margin-bottom:1px;
   }
@@ -124,6 +125,13 @@ type WorkoutTypeComboBoxItem = {
     cursor: pointer;
   }
 
+  vaadin-button[delete-button] {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right:8px;
+    visibility:hidden;
+  }
   svg {
     fill: var(--app-text-color-lighter);
     width: 24px;
@@ -144,6 +152,12 @@ type WorkoutTypeComboBoxItem = {
       margin-left: 0;
     }
   }
+
+  @media (min-width: 737px) {
+    workout-summary:hover > vaadin-button[delete-button]{
+      visibility:visible;
+    }
+  }
 </style>
 
 <app-location route="{{route}}"></app-location>
@@ -155,6 +169,11 @@ type WorkoutTypeComboBoxItem = {
   <template is="dom-repeat" items="[[workouts]]">
     <workout-summary on-touchstart="_handleWorkoutSummaryTouchStart" on-touch-move="_handleWorkoutSummaryTouchEnd" on-touchcancel="_handleWorkoutSummaryTouchEnd" on-touchend="_handleWorkoutSummaryTouchEnd" on-click="_handleWorkoutSummaryClick">
       <workout-name>[[item.Name]] [[item.StartDate]]</workout-name>
+      <vaadin-button delete-button on-click="_openConfirmDialog">
+        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+          <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+        </svg>
+      </vaadin-button>
       <workout-date>[[_formatDate(item.StartDate)]]</workout-date>
       <ul hidden$="[[!item.Lifts.0]">
         <template is="dom-repeat" items="[[item.Lifts]]">
@@ -253,17 +272,20 @@ type WorkoutTypeComboBoxItem = {
 
   private _pressTimer: number;
 
+  protected _openConfirmDialog(event: any) {
+    const workout = event.model.item;
+    this.friendlyWorkoutName = workout.Name ? `${workout.Name}` : 'this workout';
+    this.deleteId = workout.Id;
+    this.confirmDeleteOpened = true;
+  }
+
   protected _handleWorkoutSummaryTouchStart(event: any) {
     this._pressTimer = window.setTimeout(() => {
-      const workout = event.model.item;
-      this.friendlyWorkoutName = workout.Name ? `${workout.Name}` : 'this workout';
-      this.deleteId = workout.Id;
-      this.confirmDeleteOpened = true;
+      this._openConfirmDialog(event);
     }, 600);
   }
 
   protected _handleWorkoutSummaryClick(event: any) {
-    event.preventDefault();
     if (!this.confirmDeleteOpened) {
       clearTimeout(this._pressTimer);
       store.dispatch<any>(getItemExpandedIfNeededAsync(event.model.item.Id));
@@ -278,7 +300,9 @@ type WorkoutTypeComboBoxItem = {
     this.confirmDeleteOpened = false;
   }
 
-  protected _confirmDeleteDialog() {
+  protected _confirmDeleteDialog(e: any) {
+    if (e)
+      e.preventDefault();
     if (this.deleteId)
       store.dispatch<any>(deleteItemAsync(this.deleteId));
     this.deleteId = null;
