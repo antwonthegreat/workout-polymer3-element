@@ -59,8 +59,10 @@ type WorkoutTypeComboBoxItem = {
   }
 
   protected _getPagedItems() {
-    store.dispatch<any>(getPagedItemsAsync());
-    (this.scrollThreshold as any).clearTriggers();
+    if (this.isActive) {
+      store.dispatch<any>(getPagedItemsAsync());
+      (this.scrollThreshold as any).clearTriggers();
+    }
   }
 
   _stateChanged(state: ApplicationState) {
