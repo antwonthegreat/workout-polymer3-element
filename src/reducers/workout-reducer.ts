@@ -16,15 +16,19 @@ import {getItems as getWorkoutSets} from './workout-set-reducer';
 
 const initialState = {
   selectedId: null,
-  list: {}
+  list: {},
+  pageCount: 0,
+  totalCount: null,
+  skipAmount: 20,
+  skipOffset: 0
 } as WorkoutState;
 
 export const WorkoutReducer: Reducer<WorkoutState> = (state = initialState, action: actions.Actions) => {
   switch (action.type) {
     case actions.ENTITIES_RECEIVED:
-      return {...state, list: {...state.list, ...action.payload}};
+      return {...state, pageCount: (state.pageCount || 0) + 1, totalCount: action.payload.totalCount, list: {...state.list, ...action.payload.items}};
     case actions.WORKOUT_CREATED:
-      return {...state, list: {...state.list, [action.payload.Id]: action.payload}};
+      return {...state, skipOffset: state.skipOffset + 1, list: {...state.list, [action.payload.Id]: action.payload}};
     case actions.ENTITY_UPDATED:
       if (!action.payload.Id)
         return state;

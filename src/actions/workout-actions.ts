@@ -1,3 +1,4 @@
+import {GetResult} from '@leavittsoftware/api-service/lib/get-result';
 import {Action, ActionsUnion, createAction} from '@leavittsoftware/titanium-elements/lib/titanium-redux-action-helpers';
 import {ThunkDispatch} from 'redux-thunk';
 
@@ -27,7 +28,7 @@ export const ENTITY_SELECTED = 'WORKOUT_SELECTED';
 export const Actions = {
   entityCreated: (entity: EntityType) => createAction(WORKOUT_CREATED, entity),
   entityDeleted: (id: number) => createAction(ENTITY_DELETED, id),
-  entitiesReceived: (message: IdMap<EntityType>) => createAction(ENTITIES_RECEIVED, message),
+  entitiesReceived: (message: {items: IdMap<EntityType>, totalCount: number}) => createAction(ENTITIES_RECEIVED, message),
   entityUpdated: (entity: Partial<EntityType>) => createAction(ENTITY_UPDATED, entity),
   entitySelected: (id: number) => createAction(ENTITY_SELECTED, id),
 };
@@ -39,13 +40,27 @@ export const selectEntityAsync = (id: number) => {
   };
 };
 
-export const getItemsAsync = () => {
-  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
+// store total count in state, increment on create
+// store page count in state
+// skip
+export const getPagedItemsAsync = () => {
+  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
     let items: Array<EntityType>;
+    let result: GetResult<EntityType>;
+    const state = getState();
+    const pageCount = (state.WorkoutReducer && state.WorkoutReducer.pageCount) || 0;
+    const skipAmount = (state.WorkoutReducer && state.WorkoutReducer.skipAmount) || 20;
+    const skipOffset = (state.WorkoutReducer && state.WorkoutReducer.skipOffset) || 0;
+    const totalCount = (state.WorkoutReducer && state.WorkoutReducer.totalCount) || null;
+    const skip = pageCount * skipAmount + skipOffset;
+    if (totalCount !== null && skip >= totalCount) {
+      return;
+    }
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = (await apiService.getAsync<EntityType>(`Workouts?$select=Name,Id,StartDate&$expand=Lifts&$orderby=StartDate desc&$top=50`, '')).toList();
+      result = await apiService.getAsync<EntityType>(`Workouts?$select=Name,Id,StartDate&$expand=Lifts&$orderby=StartDate desc&$skip=${skip}&$top=${skipAmount}&$count=true`, '');
+      items = result.toList();
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));
@@ -66,7 +81,7 @@ export const getItemsAsync = () => {
       strippedWorkout.Lifts = [];
       workouts[strippedWorkout.Id] = strippedWorkout;
     });
-    dispatch(Actions.entitiesReceived(workouts));
+    dispatch(Actions.entitiesReceived({items: workouts, totalCount: result.odataCount}));
     dispatch(LiftActions.entitiesReceived(lifts));
   };
 };

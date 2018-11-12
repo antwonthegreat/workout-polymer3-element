@@ -5,12 +5,14 @@ import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '@polymer/app-route/app-route.js';
 import '@polymer/app-route/app-location.js';
 import '../../styles/vaadin-combo-box-item-styles';
+import '@polymer/iron-scroll-threshold/iron-scroll-threshold';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
-import {customElement, observe, property} from '@polymer/decorators';
+import {customElement, observe, property, query} from '@polymer/decorators';
+import {IronScrollThresholdElement} from '@polymer/iron-scroll-threshold/iron-scroll-threshold';
 import {html, PolymerElement} from '@polymer/polymer';
 
-import {createItemAsync, deleteItemAsync, getItemExpandedIfNeededAsync, getItemsAsync} from '../../actions/workout-actions';
+import {createItemAsync, deleteItemAsync, getItemExpandedIfNeededAsync, getPagedItemsAsync} from '../../actions/workout-actions';
 import Lift from '../../model/Lift';
 import LiftType from '../../model/LiftType';
 import {ApplicationState} from '../../model/state/ApplicationState';
@@ -47,12 +49,18 @@ type WorkoutTypeComboBoxItem = {
   @property() randomLiftCount: string;
   @property() selectedWorkoutTypeComboBoxItem: WorkoutTypeComboBoxItem|null;
   // @property() t;
+  @query('iron-scroll-threshold') scrollThreshold: IronScrollThresholdElement;
 
   connectedCallback() {
     super.connectedCallback();
 
     this._stateChanged(store.getState());
-    store.dispatch<any>(getItemsAsync());
+    (this.scrollThreshold as any).clearTriggers();
+  }
+
+  protected _getPagedItems() {
+    store.dispatch<any>(getPagedItemsAsync());
+    (this.scrollThreshold as any).clearTriggers();
   }
 
   _stateChanged(state: ApplicationState) {
@@ -109,6 +117,10 @@ type WorkoutTypeComboBoxItem = {
     position:relative;
     background-color:#fff;
     margin-bottom:1px;
+  }
+
+  workout-summary:active {
+    background-color:#ccc;
   }
 
   create-buttons {
@@ -267,6 +279,7 @@ type WorkoutTypeComboBoxItem = {
     </main>
   </template>
 </vaadin-dialog>
+<iron-scroll-threshold scroll-target="document" lower-threshold="50" on-lower-threshold="_getPagedItems"></iron-scroll-threshold>
 `;
   }
 

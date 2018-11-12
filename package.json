@@ -14,6 +14,7 @@
     "@polymer/iron-collapse": "^3.0.1",
     "@polymer/iron-flex-layout": "^3.0.1",
     "@polymer/iron-media-query": "^3.0.1",
+    "@polymer/iron-scroll-threshold": "^3.0.1",
     "@polymer/paper-slider": "^3.0.1",
     "@polymer/polymer": "^3.0.5",
     "@vaadin/vaadin-button": "^2.1.0",
