@@ -94,10 +94,12 @@ export const getItemExpandedIfNeededAsync = (id: number) => {
       return;
     }
     const apiService = injected.apiServiceFactory.create();
+    // TODO: remove default once authorization works
+    const userId = (state.AppReducer && state.AppReducer.userId) || 1;
     let item: EntityType|null;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      item = (await apiService.getAsync<EntityType>(`Workouts?$filter=Id eq ${id}&$select=Name,Id,StartDate&$expand=Lifts($expand=WorkoutSets)&$top=1`, '')).firstOrDefault();
+      item = (await apiService.getAsync<EntityType>(`Workouts?$filter=Id eq ${id}&$select=Name,Id,StartDate&$expand=Lifts($expand=WorkoutSets,LiftType($expand=Lifts($filter=Workout/UserId eq ${userId} and WorkoutSets/any(workoutSet:workoutSet/Reps gt 0);$expand=WorkoutSets;$top=1)))&$top=1`, '')).firstOrDefault();
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));

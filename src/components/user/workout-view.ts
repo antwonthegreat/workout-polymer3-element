@@ -14,11 +14,13 @@ import {html, PolymerElement} from '@polymer/polymer';
 
 import {Actions as AppActions} from '../../actions/app-actions';
 import {selectEntityAsync, updateItemAsync} from '../../actions/workout-actions';
+import {getPersonalBestAsync} from '../../actions/workout-set-actions';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 // import {loadingSelector} from '../../reducers/app-reducer';
 import {selectedItemWithLiftsWithLiftTypeAndWorkoutSetsSelector} from '../../reducers/workout-reducer';
 import {store} from '../../store';
+
 import {AddLiftDialog} from './add-lift-dialog';
 
 @customElement('workout-view') export class WorkoutView extends connectMixin
@@ -60,8 +62,12 @@ import {AddLiftDialog} from './add-lift-dialog';
 
   @observe('selectedWorkout')
   selectedWorkoutChanged(selectedWorkout: Workout) {
-    if (selectedWorkout && !this.newWorkoutName)
+    if (!selectedWorkout)
+      return;
+    if (!this.newWorkoutName)
       this.newWorkoutName = selectedWorkout.Name;
+
+    selectedWorkout.Lifts.forEach(lift => store.dispatch<any>(getPersonalBestAsync(lift.LiftTypeId)));
   }
 
   _stateChanged(state: ApplicationState) {

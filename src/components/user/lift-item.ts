@@ -16,6 +16,7 @@ import Lift from '../../model/Lift';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import WorkoutSet from '../../model/WorkoutSet';
 import {getLastLiftCompletedWithSets} from '../../reducers/lift-reducer';
+import {getPersonalBest} from '../../reducers/workout-set-reducer';
 import {store} from '../../store';
 
 @customElement('lift-item') export class WorkoutView extends connectMixin
@@ -24,6 +25,7 @@ import {store} from '../../store';
   @property() expanded: boolean = false;
   @property() lastCompletedLift: Lift|null;
   @property() confirmOpened: boolean = false;
+  @property() personalBestSet: WorkoutSet|null;
 
   protected _headerClicked() {
     this.expanded = !this.expanded;
@@ -57,6 +59,7 @@ import {store} from '../../store';
 
   _stateChanged(state: ApplicationState) {
     this.lastCompletedLift = getLastLiftCompletedWithSets(state, this.lift.LiftTypeId, this.lift.StartDate);
+    this.personalBestSet = getPersonalBest(state, this.lift.LiftTypeId);
   }
 
   protected _formatLastCompletedLift(lastCompletedLift: Lift|null) {
@@ -98,6 +101,10 @@ import {store} from '../../store';
             cursor:pointer;
           }
 
+          lift-details {
+            @apply --layout-vertical;
+          }
+
           lift-name {
             @apply --layout-flex-2;
           }
@@ -133,7 +140,8 @@ import {store} from '../../store';
           </header>
           <iron-collapse opened="[[expanded]]">
             <lift-details>
-              <last-completed-lift>Previous Attempt : [[_formatLastCompletedLift(lastCompletedLift)]]</last-completed-lift>
+              <last-completed-lift>Previous Attempt: [[_formatLastCompletedLift(lastCompletedLift)]]</last-completed-lift>
+              <personal-best hidden$="[[!personalBestSet]]">Personal Best: [[personalBestSet.Reps]] x [[personalBestSet.Weight]]</personal-best>
               <template is="dom-repeat" items="[[lift.WorkoutSets]]">
                 <workout-set-item workout-set="[[item]]"></workout-set-item>
               </template>

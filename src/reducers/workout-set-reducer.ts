@@ -9,7 +9,8 @@ import {IdMap} from '../services/action-helpers';
 
 const initialState = {
   selectedId: null,
-  list: {}
+  list: {},
+  personalBestByLiftTypeId: {}
 } as WorkoutSetState;
 
 export const WorkoutSetReducer: Reducer<WorkoutSetState> = (state = initialState, action: actions.Actions) => {
@@ -26,6 +27,8 @@ export const WorkoutSetReducer: Reducer<WorkoutSetState> = (state = initialState
       // destructuring black magic
       const {[action.payload]: value, ...updatedItems} = state.list;
       return {...state, list: updatedItems as any};
+    case actions.PERSONAL_BEST_RECEIVED:
+      return {...state, personalBestByLiftTypeId: {...state.personalBestByLiftTypeId, [action.payload.liftTypeId]: action.payload.entity}};
     default:
       return state;
   }
@@ -41,3 +44,15 @@ export const getItems = (state: ApplicationState): IdMap<WorkoutSet> => {
 export const itemsSelector = createSelector(getItems, (items: IdMap<WorkoutSet>): Array<WorkoutSet> => {
   return Object.values(items);
 });
+
+export const getPersonalBest = (state: ApplicationState, liftTypeId: number): null|WorkoutSet => {
+  if (!state.WorkoutSetReducer || !state.WorkoutSetReducer.list || !state.LiftReducer || !state.LiftReducer.list)
+    return null;
+  const liftIds = Object.values(state.LiftReducer.list).filter(lift => lift.LiftTypeId === liftTypeId).map(lift => lift.Id);
+  return Object.values(state.WorkoutSetReducer.list).filter(workoutSet => liftIds.indexOf(workoutSet.LiftId) > -1).sort((a, b) => {
+    if (a.Weight === b.Weight)
+      return b.Reps - a.Reps;
+    return b.Weight - a.Weight;
+  })[0] ||
+      null;
+};
