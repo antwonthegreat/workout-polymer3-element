@@ -1,5 +1,4 @@
 import {Reducer} from 'redux';
-import {createSelector} from 'reselect';
 
 import * as actions from '../actions/lift-type-actions';
 import LiftType from '../model/LiftType';
@@ -38,14 +37,6 @@ export const getItems = (state: ApplicationState): IdMap<LiftType> => {
 
   return state.LiftTypeReducer.list;
 };
-
-export const liftTypesSelector = createSelector(getItems, (items: IdMap<LiftType>): Array<LiftType> => {
-  return Object.values(items);
-});
-
-export const activeItemsSelector = createSelector(liftTypesSelector, (items: Array<LiftType>): Array<LiftType> => {
-  return items.filter(liftType => liftType.UserToLiftTypes && liftType.UserToLiftTypes.length > 0);
-});
 
 export const getActiveItems = (state: ApplicationState, workoutTypeId: number|null): Array<LiftType> => {
   const items = state.LiftTypeReducer ? state.LiftTypeReducer.list : {};

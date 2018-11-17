@@ -1,14 +1,11 @@
 import {Reducer} from 'redux';
-import {createSelector} from 'reselect';
 
 import * as actions from '../actions/lift-actions';
 import Lift from '../model/Lift';
-import LiftType from '../model/LiftType';
 import {ApplicationState} from '../model/state/ApplicationState';
 import {LiftState} from '../model/state/LiftState';
 import {getItems as getWorkoutSets} from '../reducers/workout-set-reducer';
 import {IdMap} from '../services/action-helpers';
-import {getItems as getLiftTypes} from './lift-type-reducer';
 
 const initialState = {
   selectedId: null,
@@ -36,12 +33,6 @@ export const getItems = (state: ApplicationState): IdMap<Lift> => {
 
   return state.LiftReducer.list;
 };
-
-export const liftsWithLiftTypeSelector = createSelector(getItems, getLiftTypes, (items: IdMap<Lift>, liftTypes: IdMap<LiftType>): Array<Lift> => {
-  return Object.values(items).map(lift => {
-    return {...lift, LiftType: liftTypes[lift.LiftTypeId] || null};
-  });
-});
 
 export const getLastLiftCompletedWithSets = (state: ApplicationState, liftTypeId: number, completedBefore: string): Lift|null => {
   const lifts = state.LiftReducer && state.LiftReducer.list || {};

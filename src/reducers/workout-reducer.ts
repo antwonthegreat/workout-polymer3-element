@@ -67,6 +67,7 @@ export const workoutWithLiftsWithLiftTypeSelector = createSelector(getItems, get
                    return {...lifts[key], LiftType: liftTypes[lifts[key].LiftTypeId]};
                  })
                  .filter((lift: Lift) => lift.WorkoutId === workout.Id)
+                 .sort((a, b) => new Date(a.StartDate).getTime() - new Date(b.StartDate).getTime())
     };
   });
 });
@@ -87,5 +88,6 @@ export const selectedItemWithLiftsWithLiftTypeAndWorkoutSetsSelector = createSel
                  return {...lifts[key], LiftType: liftTypes[lifts[key].LiftTypeId], WorkoutSets: sets};
                })
                .filter((lift: Lift) => lift.WorkoutId === workout.Id)
+               .sort((a, b) => new Date(a.StartDate).getTime() - new Date(b.StartDate).getTime())
   };
 });
