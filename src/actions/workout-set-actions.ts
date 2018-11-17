@@ -35,11 +35,12 @@ export const getPersonalBestAsync = (liftTypeId: number) => {
     if (state.WorkoutSetReducer && state.WorkoutSetReducer.personalBestByLiftTypeId && state.WorkoutSetReducer.personalBestByLiftTypeId[liftTypeId] !== undefined)
       return;
 
-    const userId = (appState && appState.userId) || 0;
+    const userId = (appState && appState.userId);
 
     let item: EntityType|null;
     dispatch(AppActions.pageLoadingStarted());
     try {
+      item = null;
       item = (await apiService.getAsync<EntityType>(`${controllerName}?$expand=Lift&$filter=Lift/Workout/UserId eq ${userId} and Lift/LiftTypeId eq ${liftTypeId}&orderby=Weight desc,Reps desc`, '')).firstOrDefault();
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());

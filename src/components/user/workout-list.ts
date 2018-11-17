@@ -51,6 +51,7 @@ type WorkoutTypeComboBoxItem = {
   // @property() t;
   @query('iron-scroll-threshold') scrollThreshold: IronScrollThresholdElement;
 
+  // TODO: show no workouts messages
   connectedCallback() {
     super.connectedCallback();
 

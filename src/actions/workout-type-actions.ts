@@ -49,7 +49,7 @@ export const getItemsAsync = () => {
       &$expand=
         LiftTypes($select=Id,Name,Timed,WorkoutTypeId;$expand=
           UserToLiftTypes($select=Id,UserId,LiftTypeId;$filter=UserId eq ${userId})
-          ,Lifts($expand=WorkoutSets;$orderby=StartDate desc;$top=2)
+          ,Lifts($filter=Workout/UserId eq ${userId};$expand=WorkoutSets;$orderby=StartDate desc;$top=2)
         )
         ,UserToWorkoutTypes($select=Id,WorkoutTypeId,LastCompletedDate;$filter=UserId eq ${userId})`,
                    ''))

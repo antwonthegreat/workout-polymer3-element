@@ -27,13 +27,14 @@ export const Actions = {
 };
 
 export const getItemsAsync = () => {
-  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
+  return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
-
+    const state = getState();
+    const userId = (state.AppReducer && state.AppReducer.userId);
     let items: Array<EntityType>;
     dispatch(AppActions.pageLoadingStarted());
     try {
-      items = (await apiService.getAsync<EntityType>(`${controllerName}?$select=LiftTypeId,Id,StartDate,WorkoutId&$expand=WorkoutSets($select=Reps,Weight)`, '')).toList();
+      items = (await apiService.getAsync<EntityType>(`${controllerName}?$filter=Lift/Workout/UserId eq ${userId} $select=LiftTypeId,Id,StartDate,WorkoutId&$expand=WorkoutSets($select=Reps,Weight)`, '')).toList();
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
       dispatch(AppActions.setSnackbarErrorMessage(error));

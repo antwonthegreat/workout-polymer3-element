@@ -14,7 +14,6 @@ import {html, PolymerElement} from '@polymer/polymer';
 
 import {Actions as AppActions} from '../../actions/app-actions';
 import {selectEntityAsync, updateItemAsync} from '../../actions/workout-actions';
-import {getPersonalBestAsync} from '../../actions/workout-set-actions';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import Workout from '../../model/Workout';
 // import {loadingSelector} from '../../reducers/app-reducer';
@@ -60,14 +59,12 @@ import {AddLiftDialog} from './add-lift-dialog';
     store.dispatch<any>(selectEntityAsync(itemId));
   }
 
-  @observe('selectedWorkout')
-  selectedWorkoutChanged(selectedWorkout: Workout) {
-    if (!selectedWorkout)
+  @observe('selectedWorkout.lifts.length')
+  selectedWorkoutChanged() {
+    if (!this.selectedWorkout)
       return;
     if (!this.newWorkoutName)
-      this.newWorkoutName = selectedWorkout.Name;
-
-    selectedWorkout.Lifts.forEach(lift => store.dispatch<any>(getPersonalBestAsync(lift.LiftTypeId)));
+      this.newWorkoutName = this.selectedWorkout.Name;
   }
 
   _stateChanged(state: ApplicationState) {

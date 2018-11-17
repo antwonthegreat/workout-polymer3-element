@@ -12,7 +12,7 @@ const initialState = {
   fatalErrorMessage: '',
   snackbarErrorMessage: '',
   navigateTo: null,
-  userId: 1
+  userId: 8
 } as AppState;
 
 export const AppReducer: Reducer<AppState> = (state = initialState, action: fromActions.Actions) => {

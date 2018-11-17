@@ -14,7 +14,7 @@ import {IdMap} from '../services/action-helpers';
 import {Actions as AppActions} from './app-actions';
 import {Actions as LiftActions} from './lift-actions';
 import {updateLastCompletedDateAsync} from './user-to-workout-type-actions';
-import {Actions as WorkoutSetActions} from './workout-set-actions';
+import {Actions as WorkoutSetActions, getPersonalBestAsync} from './workout-set-actions';
 
 type EntityType = Workout;
 const entityName = 'Workout';
@@ -49,17 +49,25 @@ export const getPagedItemsAsync = () => {
     let items: Array<EntityType>;
     let result: GetResult<EntityType>;
     const state = getState();
+    const userId = (state.AppReducer && state.AppReducer.userId);
     const pageCount = (state.WorkoutReducer && state.WorkoutReducer.pageCount) || 0;
     const skipAmount = (state.WorkoutReducer && state.WorkoutReducer.skipAmount) || 20;
     const skipOffset = (state.WorkoutReducer && state.WorkoutReducer.skipOffset) || 0;
     const totalCount = (state.WorkoutReducer && state.WorkoutReducer.totalCount) || null;
     const skip = pageCount * skipAmount + skipOffset;
-    if (totalCount !== null && skip >= totalCount) {
+    if ((totalCount !== null && skip >= totalCount) || !userId) {
       return;
     }
     dispatch(AppActions.pageLoadingStarted());
     try {
-      result = await apiService.getAsync<EntityType>(`Workouts?$select=Name,Id,StartDate&$expand=Lifts&$orderby=StartDate desc&$skip=${skip}&$top=${skipAmount}&$count=true`, '');
+      result = await apiService.getAsync<EntityType>(
+          `Workouts?
+        $select=Name,Id,StartDate
+        &$filter=UserId eq ${userId}
+        &$expand=Lifts&$orderby=StartDate desc&$skip=${skip}
+        &$top=${skipAmount}
+        &$count=true`,
+          '');
       items = result.toList();
     } catch (error) {
       dispatch(AppActions.pageLoadingEnded());
@@ -95,7 +103,7 @@ export const getItemExpandedIfNeededAsync = (id: number) => {
     }
     const apiService = injected.apiServiceFactory.create();
     // TODO: remove default once authorization works
-    const userId = (state.AppReducer && state.AppReducer.userId) || 1;
+    const userId = (state.AppReducer && state.AppReducer.userId);
     let item: EntityType|null;
     dispatch(AppActions.pageLoadingStarted());
     try {
@@ -113,6 +121,7 @@ export const getItemExpandedIfNeededAsync = (id: number) => {
     const lifts: IdMap<Lift> = {};
     const workoutSets: IdMap<WorkoutSet> = {};
     item.Lifts.forEach(lift => {
+      dispatch(getPersonalBestAsync(lift.LiftTypeId));
       lifts[lift.Id] = {...lift, WorkoutSets: []};
       lift.WorkoutSets.forEach(workoutSet => {
         workoutSets[workoutSet.Id] = workoutSet;
