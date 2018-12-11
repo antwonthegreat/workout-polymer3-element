@@ -49,7 +49,7 @@ type LiftTypeComboBoxItem = {
 
   @observe('selectedWorkoutTypeComboBoxItem')
   protected _selectedWorkoutTypeChanged(selectedWorkoutTypeComboBoxItem: WorkoutTypeComboBoxItem) {
-    if (!selectedWorkoutTypeComboBoxItem) {
+    if (!selectedWorkoutTypeComboBoxItem || !this.workout) {
       this.liftTypeComboBoxItems = [];
       this.selectedLiftTypeComboBoxItem = null;
 
