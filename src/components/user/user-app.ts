@@ -73,7 +73,7 @@ import {store} from '../../store';
   @observe('routeData.page')
   routeDataPageChanged(page: string) {
     // Validate from URI
-    if (['workout-list', 'muscle-groups', 'workout'].indexOf(page) === -1) {
+    if (['workout-list', 'muscle-groups', 'workout', 'lift-graph'].indexOf(page) === -1) {
       this.set('routeData.page', 'workout-list');
       return;
     }
@@ -96,6 +96,11 @@ import {store} from '../../store';
         case 'workout':
           store.dispatch(AppActions.pageLoadingStarted());
           await import('./workout-view.js');
+          store.dispatch(AppActions.pageLoadingEnded());
+          break;
+        case 'lift-graph':
+          store.dispatch(AppActions.pageLoadingStarted());
+          await import('./lift-graph.js');
           store.dispatch(AppActions.pageLoadingEnded());
           break;
       }
@@ -295,6 +300,7 @@ import {store} from '../../store';
 <main-content>
   <workout-list hidden$="[[!_isActive(page, 'workout-list')]]"></workout-list>
   <workout-view hidden$="[[!_isActive(page, 'workout')]]"></workout-view>
+  <lift-graph hidden$="[[!_isActive(page, 'lift-graph')]]"></lift-graph>
 </main-content>
 
 <app-header shadow fixed id="header">

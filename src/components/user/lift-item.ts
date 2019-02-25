@@ -10,6 +10,7 @@ import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redu
 import {customElement, property} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
+import {Actions as AppActions} from '../../actions/app-actions';
 import {deleteItemAsync} from '../../actions/lift-actions';
 import {createItemAsync as createWorkoutSetAsync} from '../../actions/workout-set-actions';
 import Lift from '../../model/Lift';
@@ -43,6 +44,11 @@ import {store} from '../../store';
       newWorkoutSet.Weight = this.lastCompletedLift.WorkoutSets[0].Weight;
     }
     store.dispatch<any>(createWorkoutSetAsync(newWorkoutSet));
+  }
+
+  protected _graphClicked(event: any) {
+    event.stopPropagation();
+    store.dispatch(AppActions.navigate(`/user/lift-graph/${this.lift.LiftTypeId}`));
   }
 
   protected _deleteClicked(event: any) {

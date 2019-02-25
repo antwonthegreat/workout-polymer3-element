@@ -69,6 +69,7 @@ describe('lift type tests', () => {
           1: {StartDate: '2011-01-01'} as any,
           2: {StartDate: '2011-01-01'} as any
         },
+        graphLiftTypeId: 2
       },
       UserToLiftTypeReducer: {
         list: {
@@ -130,7 +131,8 @@ describe('lift type tests', () => {
           14: {LiftTypeId: 4, StartDate: '2011-01-01'} as any,
           16: {LiftTypeId: 6, StartDate: '2011-01-01'} as any,
           17: {LiftTypeId: 7, StartDate: '2011-01-01'} as any
-        }
+        },
+        graphLiftTypeId: 2
       },
       UserToWorkoutTypeReducer: {
         listByWorkoutTypeId: {
@@ -181,7 +183,8 @@ describe('lift type tests', () => {
           15: {Id: 15, LiftTypeId: 5, StartDate: '2009-01-01'} as any,
           16: {Id: 16, LiftTypeId: 6, StartDate: '2011-01-01'} as any,
           17: {Id: 17, LiftTypeId: 7, StartDate: '2011-01-01'} as any
-        }
+        },
+        graphLiftTypeId: 2
       },
       UserToWorkoutTypeReducer: {
         listByWorkoutTypeId: {
@@ -232,7 +235,8 @@ describe('lift type tests', () => {
           15: {Id: 15, LiftTypeId: 5, StartDate: '2009-01-01'} as any,
           16: {Id: 16, LiftTypeId: 6, StartDate: '2011-01-01'} as any,
           17: {Id: 17, LiftTypeId: 7, StartDate: '2011-01-01'} as any
-        }
+        },
+        graphLiftTypeId: 2
       },
       UserToWorkoutTypeReducer: {
         listByWorkoutTypeId: {

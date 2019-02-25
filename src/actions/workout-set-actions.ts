@@ -51,11 +51,10 @@ export const getPersonalBestAsync = (liftTypeId: number) => {
     dispatch(Actions.personalBestRecieved({entity: item || null, liftTypeId}));
     if (item) {
       dispatch(LiftActions.entitiesReceived({[item.Lift.Id]: item.Lift}));
-      dispatch(Actions.entitiesReceived({[item.Id]: item}));
+      dispatch(Actions.entitiesReceived({[item.Id]: {...item, StartDate: item.StartDate === '0001-01-01T00:00:00Z' ? item.Lift.StartDate : item.StartDate}}));
     }
   };
 };
-
 export const createItemAsync = (item: Partial<EntityType>) => {
   return async (dispatch: ThunkDispatch<ApplicationState, ActionInjectable, Action>, _getState: () => ApplicationState, injected: ActionInjectable) => {
     const apiService = injected.apiServiceFactory.create();
