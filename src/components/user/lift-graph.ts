@@ -4,6 +4,7 @@ import '@polymer/app-route/app-route.js';
 import '@polymer/app-route/app-location.js';
 import '../../styles/card-shared-styles.js';
 import '../../highcharts/highcharts-chart.js';
+import '../user/simple-lift-item';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
 import {customElement, observe, property, query} from '@polymer/decorators';
@@ -11,6 +12,7 @@ import {html, PolymerElement} from '@polymer/polymer';
 
 import {Actions as AppActions} from '../../actions/app-actions';
 import {getGraphDataAsync} from '../../actions/lift-actions';
+import Lift from '../../model/Lift.js';
 import {ApplicationState} from '../../model/state/ApplicationState';
 import {graphDataSelector, UserWorkoutSetCollection} from '../../reducers/lift-reducer';
 import {store} from '../../store';
@@ -24,6 +26,7 @@ declare var moment: any;
   @property() itemId: number;
   @property() selectedLiftTypeName: string;
   @property() selectedPoints: any;
+  @property() lifts: Array<Lift> = [];
   @property()
   highOptions = {
     xAxis: {type: 'datetime'},
@@ -37,14 +40,7 @@ declare var moment: any;
 
   connectedCallback() {
     super.connectedCallback();
-    this.highData = [
-      [moment(new Date('2019-01-01')).utc().valueOf(), 0],
-      [moment(new Date('2019-01-02')).utc().valueOf(), 7],
-      [moment(new Date('2019-01-03')).utc().valueOf(), 1],
-      [moment(new Date('2019-01-04')).utc().valueOf(), 6],
-      [moment(new Date('2019-01-05')).utc().valueOf(), 8],
-      [moment(new Date('2019-01-06')).utc().valueOf(), 6]
-    ];
+    this.highData = [[moment(new Date('2019-01-01')).utc().valueOf(), 0]];
     this._stateChanged(store.getState());
   }
 
@@ -78,8 +74,10 @@ declare var moment: any;
     const graphData = graphDataSelector(state);
     this.selectedLiftTypeName = graphData.liftTypeName;
     const workoutSetCollections = graphData.userWorkoutSetCollections;
-    if (workoutSetCollections && workoutSetCollections.length > 0)
+    if (workoutSetCollections && workoutSetCollections.length > 0) {
       this._formatGoogleChartData(workoutSetCollections);
+      this.lifts = graphData.allLifts;
+    }
   }
 
   _formatGoogleChartData(workoutSetCollections: Array<UserWorkoutSetCollection>) {
@@ -156,6 +154,11 @@ declare var moment: any;
     margin:4px;
   }
 
+  lift-list {
+    overflow-x:scroll;
+    max-height:300px;
+  }
+
   [hidden] {
     display: none;
   }
@@ -184,9 +187,11 @@ declare var moment: any;
       credits legend>
     </highcharts-chart>
 
-    <template is="dom-repeat" items="[[selectedLifts]]"> -->
-
+    <lift-list>
+      <template is="dom-repeat" items="[[lifts]]">
+        <simple-lift-item lift="[[item]]"></simple-lift-item>
       </template>
+    </lift-list>
     </card-section>
   </material-card>
 </main-content>

@@ -150,12 +150,17 @@ export const graphDataSelector = createSelector(getItems, getWorkoutSets, getLif
     }
   });
   const liftTypeName = graphLiftTypeId && liftTypes[graphLiftTypeId] ? liftTypes[graphLiftTypeId].Name : '';
-  return {userWorkoutSetCollections: [{name: 'normal', collection: normalSets}, {name: 'max', collection: oneRepMaxSets}, {name: 'ascending pyramids', collection: ascendingPyramidSets}, {name: 'descending pyramids', collection: descendingPyramidSets}, {name: 'pyramids', collection: pyramidSets}], liftTypeName};
+  return {
+    allLifts: lifts.filter(lift => lift.WorkoutSets.length > 0).reverse(),
+    userWorkoutSetCollections: [{name: 'normal', collection: normalSets}, {name: 'max', collection: oneRepMaxSets}, {name: 'ascending pyramids', collection: ascendingPyramidSets}, {name: 'descending pyramids', collection: descendingPyramidSets}, {name: 'pyramids', collection: pyramidSets}],
+    liftTypeName
+  };
 });
 
 interface GraphData {
   liftTypeName: string;
   userWorkoutSetCollections: Array<UserWorkoutSetCollection>;
+  allLifts: Array<Lift>;
 }
 
 export interface UserWorkoutSetCollection {
