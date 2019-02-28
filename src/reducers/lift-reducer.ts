@@ -94,16 +94,24 @@ export const graphDataSelector = createSelector(getItems, getWorkoutSets, getLif
                                          .filter((workoutSet: WorkoutSet) => workoutSet.LiftId === lift.Id)
                                          // .sort((a: WorkoutSet, b: WorkoutSet) => new Date(a.StartDate).getTime() - new Date(b.StartDate).getTime())
                                          .sort((a: WorkoutSet, b: WorkoutSet) => a.Id - b.Id)
+                                         .map(workoutSet => {
+                                           return {...workoutSet, Lift: lift};
+                                         })
                       };
                     });
-  const userWorkoutSetCollection: UserWorkoutSetCollection = {normalSets: [], oneRepMaxSets: [], pyramidSets: [], ascendingPyramidSets: [], descendingPyramidSets: []};
+  const normalSets: Array<Lift> = [];
+  const oneRepMaxSets: Array<Lift> = [];
+  const pyramidSets: Array<Lift> = [];
+  const ascendingPyramidSets: Array<Lift> = [];
+  const descendingPyramidSets: Array<Lift> = [];
+
   lifts.forEach(lift => {
     if (lift.WorkoutSets.length === 0) {
       return;
     }
 
     if (lift.WorkoutSets.every(workoutSet => workoutSet.Reps === 1)) {
-      userWorkoutSetCollection.oneRepMaxSets.push(lift.WorkoutSets);
+      oneRepMaxSets.push(lift);
       return;
     }
 
@@ -130,19 +138,19 @@ export const graphDataSelector = createSelector(getItems, getWorkoutSets, getLif
     });
 
     if (isNotAPyramid) {
-      userWorkoutSetCollection.normalSets.push(lift.WorkoutSets);
+      normalSets.push(lift);
     } else if (ascendCount > 0 && descendCount > 0) {
-      userWorkoutSetCollection.pyramidSets.push(lift.WorkoutSets);
+      pyramidSets.push(lift);
     } else if (ascendCount === 0 && descendCount > 0) {
-      userWorkoutSetCollection.descendingPyramidSets.push(lift.WorkoutSets);
+      descendingPyramidSets.push(lift);
     } else if (ascendCount > 0 && descendCount === 0) {
-      userWorkoutSetCollection.ascendingPyramidSets.push(lift.WorkoutSets);
+      ascendingPyramidSets.push(lift);
     } else {
       console.warn(`warn`, lift);
     }
   });
   const liftTypeName = graphLiftTypeId && liftTypes[graphLiftTypeId] ? liftTypes[graphLiftTypeId].Name : '';
-  return {userWorkoutSetCollections: [userWorkoutSetCollection], liftTypeName};
+  return {userWorkoutSetCollections: [{name: 'normal', collection: normalSets}, {name: 'max', collection: oneRepMaxSets}, {name: 'ascending pyramids', collection: ascendingPyramidSets}, {name: 'descending pyramids', collection: descendingPyramidSets}, {name: 'pyramids', collection: pyramidSets}], liftTypeName};
 });
 
 interface GraphData {
@@ -151,9 +159,6 @@ interface GraphData {
 }
 
 export interface UserWorkoutSetCollection {
-  oneRepMaxSets: Array<Array<WorkoutSet>>;
-  pyramidSets: Array<Array<WorkoutSet>>;
-  normalSets: Array<Array<WorkoutSet>>;
-  ascendingPyramidSets: Array<Array<WorkoutSet>>;
-  descendingPyramidSets: Array<Array<WorkoutSet>>;
+  name: string;
+  collection: Array<Lift>;
 }

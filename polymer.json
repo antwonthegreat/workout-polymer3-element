@@ -9,7 +9,8 @@
   ],
   "extraDependencies": [
     "manifest.json",
-    "node_modules/@webcomponents/webcomponentsjs/**"
+    "node_modules/@webcomponents/webcomponentsjs/**",
+    "node_modules/moment/moment.js"
   ],
   "builds": [{
       "name": "esm-bundled",

@@ -124,7 +124,7 @@ export const getItemExpandedIfNeededAsync = (id: number) => {
       dispatch(getPersonalBestAsync(lift.LiftTypeId));
       lifts[lift.Id] = {...lift, WorkoutSets: []};
       lift.WorkoutSets.forEach(workoutSet => {
-        workoutSets[workoutSet.Id] = workoutSet;
+        workoutSets[workoutSet.Id] = {...workoutSet, LiftId: lift.Id, StartDate: workoutSet.StartDate === '0001-01-01T00:00:00Z' ? lift.StartDate : workoutSet.StartDate};
       });
     });
     const strippedWorkout = {...item};

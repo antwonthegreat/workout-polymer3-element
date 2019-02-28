@@ -81,7 +81,7 @@ export const getItemsAsync = () => {
         liftType.Lifts.forEach((lift) => {
           lifts[lift.Id] = lift;
           lift.WorkoutSets.forEach(workoutSet => {
-            workoutSets[workoutSet.Id] = workoutSet;
+            workoutSets[workoutSet.Id] = {...workoutSet, LiftId: lift.Id, StartDate: workoutSet.StartDate === '0001-01-01T00:00:00Z' ? lift.StartDate : workoutSet.StartDate};
           });
         });
         const strippedLiftType = {...liftType};
