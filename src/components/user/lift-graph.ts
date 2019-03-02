@@ -195,7 +195,6 @@ declare var moment: any;
 <app-route route="{{route}}" pattern="/user/lift-graph/:id" data="{{routeData}}"> </app-route>
 <main-content>
   <material-card>
-    <header>[[selectedLiftTypeName]]</header>
     <card-section>
     <highcharts-chart type="line"
       data='[[highData]]'
