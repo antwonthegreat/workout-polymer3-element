@@ -26,12 +26,14 @@ declare var moment: any;
   @property() itemId: number;
   @property() selectedLiftTypeName: string;
   @property() selectedPoints: any;
+  @property() selectedLift: any;
   @property() lifts: Array<Lift> = [];
   @property()
   highOptions = {
     xAxis: {type: 'datetime'},
 
-    drilldown: {series: [{name: 'test', id: 'test', data: [['v11.0', 24.13], ['v8.0', 17.2], ['v9.0', 8.11], ['v10.0', 5.33], ['v6.0', 1.06], ['v7.0', 0.5]]}]}
+    drilldown: {series: [{name: 'test', id: 'test', data: [['v11.0', 24.13], ['v8.0', 17.2], ['v9.0', 8.11], ['v10.0', 5.33], ['v6.0', 1.06], ['v7.0', 0.5]]}]},
+    plotOptions: {series: {allowPointSelect: true}}
   };
 
   @property() highData: any;
@@ -66,6 +68,24 @@ declare var moment: any;
     store.dispatch<any>(getGraphDataAsync(itemId));
   }
 
+  @observe('selectedPoints.*')
+  pointSelected(selectedPointsSplice: {value: Array<{lift: Lift}>}) {
+    if (selectedPointsSplice.value.length > 0) {
+      this.selectedLift = selectedPointsSplice.value[0].lift;
+      const shadowRoot = this.shadowRoot;
+      if (!shadowRoot)
+        return;
+      const repeat = shadowRoot.querySelector('lift-list');
+      if (!repeat)
+        return;
+      const element = repeat.querySelector(`#r${this.selectedLift.Id}`);
+      if (!element)
+        return;
+      element.scrollIntoView({behavior: 'smooth'});
+      // .querySelector('simple-lift-item'));
+    }
+  }
+
   _stateChanged(state: ApplicationState) {
     if (!state.AppReducer) {
       return;
@@ -96,7 +116,7 @@ declare var moment: any;
 
         const biggestSet = lift.WorkoutSets.sort((a, b) => b.Weight - a.Weight)[0];
         // googleChartFormattedData.push([new Date(biggestSet.StartDate), biggestSet.Weight]);
-        dataPoints.push({x: new Date(biggestSet.StartDate), y: biggestSet.Weight, lift: workoutSetCollection.collection});
+        dataPoints.push({x: new Date(biggestSet.StartDate), y: biggestSet.Weight, lift});
       });
       // dataTables.push(data1);
       try {
@@ -106,6 +126,10 @@ declare var moment: any;
         console.warn(error);
       }
     });
+  }
+
+  protected _areEqual(a: any, b: any) {
+    return a === b;
   }
 
   static get template() {
@@ -150,12 +174,8 @@ declare var moment: any;
     fill: #fff;
   }
 
-  lift-item {
-    margin:4px;
-  }
-
   lift-list {
-    overflow-x:scroll;
+    overflow-y:scroll;
     max-height:300px;
   }
 
@@ -182,14 +202,15 @@ declare var moment: any;
       title='[[selectedLiftTypeName]]'
       highchart-options='[[highOptions]]'
       selected-points="{{selectedPoints}}"
+      selected="{{selected}}"
       x-zoom x-label="Date"
       y-zoom y-label="Weight"
       credits legend>
     </highcharts-chart>
 
     <lift-list>
-      <template is="dom-repeat" items="[[lifts]]">
-        <simple-lift-item lift="[[item]]"></simple-lift-item>
+      <template id="liftItems" is="dom-repeat" items="[[lifts]]">
+        <simple-lift-item selected$="[[_areEqual(item.Id,selectedLift.Id)]]" id="r[[item.Id]]" lift="[[item]]"></simple-lift-item>
       </template>
     </lift-list>
     </card-section>

@@ -26,6 +26,10 @@ export class SimpleLiftItem extends PolymerElement {
             margin:4px;
           }
 
+          :host([selected]) material-card {
+            border: 1px solid black;
+          }
+
           header {
             @apply --layout-horizontal;
             @apply --layout-center;
