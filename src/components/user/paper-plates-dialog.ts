@@ -30,12 +30,12 @@ export class PaperPlatesDialog extends PolymerElement {
     if (!this.workoutSet)
       return;
 
-    this.value = this.editingReps ? this.workoutSet.Reps : this.workoutSet.Weight;
+    this.set('value', this.editingReps ? this.workoutSet.Reps : this.workoutSet.Weight);
     this.originalValue = this.value;
   }
 
   protected _cancel() {
-    this.value = this.originalValue;
+    this.set('value', this.originalValue);
     this._closeDialog();
   }
 
