@@ -132,6 +132,10 @@ declare var moment: any;
     return a === b;
   }
 
+  protected _onBackClick() {
+    window.history.back();
+  }
+
   static get template() {
     return html`<style include="card-shared-styles">
   :host {
@@ -157,6 +161,19 @@ declare var moment: any;
     margin: 0 0 8px 0;
   }
 
+  svg {
+    fill: #757575;
+  }
+
+  vaadin-button[back] {
+    background-color:#f5f5f5;
+    margin: 0 16px 0 0;
+    padding: 0;
+    min-width: 24px;
+    cursor: pointer;
+    @apply --layout-self-start;
+  }
+
   vaadin-button[add] {
     background-color: var(--app-secondary-color);
     box-shadow: 1px 1px 4px var(--app-primary-color);
@@ -168,10 +185,6 @@ declare var moment: any;
     bottom: 16px;
     right: 16px;
     cursor: pointer;
-  }
-
-  svg {
-    fill: #fff;
   }
 
   lift-list {
@@ -194,24 +207,32 @@ declare var moment: any;
 <app-location route="{{route}}"></app-location>
 <app-route route="{{route}}" pattern="/user/lift-graph/:id" data="{{routeData}}"> </app-route>
 <main-content>
+  <vaadin-button back on-click="_onBackClick">
+    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+      <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+    </svg>
+  </vaadin-button>
   <material-card>
     <card-section>
-    <highcharts-chart type="line"
-      data='[[highData]]'
-      title='[[selectedLiftTypeName]]'
-      highchart-options='[[highOptions]]'
-      selected-points="{{selectedPoints}}"
-      selected="{{selected}}"
-      x-zoom x-label="Date"
-      y-zoom y-label="Weight"
-      credits legend>
-    </highcharts-chart>
-
-    <lift-list>
-      <template id="liftItems" is="dom-repeat" items="[[lifts]]">
-        <simple-lift-item selected$="[[_areEqual(item.Id,selectedLift.Id)]]" id="r[[item.Id]]" lift="[[item]]"></simple-lift-item>
-      </template>
-    </lift-list>
+      <highcharts-chart type="line"
+        data='[[highData]]'
+        title='[[selectedLiftTypeName]]'
+        highchart-options='[[highOptions]]'
+        selected-points="{{selectedPoints}}"
+        selected="{{selected}}"
+        x-zoom x-label="Date"
+        y-zoom y-label="Weight"
+        credits legend>
+      </highcharts-chart>
+    </card-section>
+  </material-card>
+  <material-card>
+    <card-section>
+      <lift-list>
+        <template id="liftItems" is="dom-repeat" items="[[lifts]]">
+          <simple-lift-item selected$="[[_areEqual(item.Id,selectedLift.Id)]]" id="r[[item.Id]]" lift="[[item]]"></simple-lift-item>
+        </template>
+      </lift-list>
     </card-section>
   </material-card>
 </main-content>
