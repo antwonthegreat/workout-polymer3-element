@@ -51,7 +51,7 @@ export const getItemsAsync = () => {
           UserToLiftTypes($select=Id,UserId,LiftTypeId;$filter=UserId eq ${userId})
           ,Lifts($filter=Workout/UserId eq ${userId};$expand=WorkoutSets;$orderby=StartDate desc;$top=2)
         )
-        ,UserToWorkoutTypes($select=Id,WorkoutTypeId,LastCompletedDate;$filter=UserId eq ${userId})`,
+        ,UserToWorkoutTypes($select=Id,UserId,WorkoutTypeId,LastCompletedDate;$filter=UserId eq ${userId})`,
                    ''))
                   .toList();
     } catch (error) {

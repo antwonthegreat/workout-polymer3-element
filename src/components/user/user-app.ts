@@ -104,6 +104,11 @@ import {store} from '../../store';
           await import('./lift-graph.js');
           store.dispatch(AppActions.pageLoadingEnded());
           break;
+        case 'muscle-groups':
+          store.dispatch(AppActions.pageLoadingStarted());
+          await import('../muscle-groups/muscle-groups.js');
+          store.dispatch(AppActions.pageLoadingEnded());
+          break;
       }
     } catch (error) {
       store.dispatch(AppActions.showFatalError('We were unable to find the page you are looking for'));
@@ -302,6 +307,7 @@ import {store} from '../../store';
   <workout-list hidden$="[[!_isActive(page, 'workout-list')]]"></workout-list>
   <workout-view hidden$="[[!_isActive(page, 'workout')]]"></workout-view>
   <lift-graph hidden$="[[!_isActive(page, 'lift-graph')]]"></lift-graph>
+  <muscle-groups hidden$="[[!_isActive(page, 'muscle-groups')]]"></muscle-groups>
 </main-content>
 
 <app-header shadow fixed id="header">

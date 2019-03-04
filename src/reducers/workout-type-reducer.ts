@@ -2,10 +2,17 @@ import {Reducer} from 'redux';
 import {createSelector} from 'reselect';
 
 import * as actions from '../actions/workout-type-actions';
+import LiftType from '../model/LiftType';
 import {ApplicationState} from '../model/state/ApplicationState';
 import {WorkoutTypeState} from '../model/state/WorkoutTypeState';
+import UserToLiftType from '../model/UserToLiftType';
+import UserToWorkoutType from '../model/UserToWorkoutType';
 import WorkoutType from '../model/WorkoutType';
 import {IdMap} from '../services/action-helpers';
+
+import {getItems as getLiftTypes} from './lift-type-reducer';
+import {getItems as getUserToLiftTypes} from './user-to-lift-type-reducer';
+import {getItemsByWorkoutTypeId as getUserToWorkoutTypes} from './user-to-workout-type-reducer';
 
 const initialState = {
   selectedId: null,
@@ -41,4 +48,16 @@ export const getItems = (state: ApplicationState): IdMap<WorkoutType> => {
 
 export const itemsSelector = createSelector(getItems, (items: IdMap<WorkoutType>): Array<WorkoutType> => {
   return Object.values(items);
+});
+
+export const itemsWithLiftTypesAndUserInfoSelector = createSelector(getItems, getLiftTypes, getUserToWorkoutTypes, getUserToLiftTypes, (workoutTypes: IdMap<WorkoutType>, liftTypes: IdMap<LiftType>, userToWorkoutTypes: IdMap<UserToWorkoutType>, userToLiftTypes: IdMap<UserToLiftType>): Array<WorkoutType> => {
+  return Object.values(workoutTypes).map(workoutType => {
+    return {
+      ...workoutType,
+      UserToWorkoutTypes: Object.values(userToWorkoutTypes).filter(userToWorkoutType => userToWorkoutType.WorkoutTypeId === workoutType.Id),
+      LiftTypes: Object.values(liftTypes).filter(liftType => liftType.WorkoutTypeId === workoutType.Id).map(liftType => {
+        return {...liftType, UserToLiftTypes: Object.values(userToLiftTypes).filter(userToLiftType => userToLiftType.LiftTypeId === liftType.Id)};
+      })
+    };
+  });
 });
