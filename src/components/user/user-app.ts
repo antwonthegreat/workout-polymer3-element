@@ -27,7 +27,7 @@ import {store} from '../../store';
 
   @query('app-drawer') appDrawer: any;
 
-  private userSettingDrawerClosed: boolean = true;
+  private drawerOpen: boolean = false;
   private _sideMenuLoaded: boolean = false;
 
   ready() {
@@ -86,6 +86,7 @@ import {store} from '../../store';
   async pageChanged(page: string) {
     if (!page)
       return;
+    this._toggleDrawer();
     try {
       switch (page) {
         case 'workout-list':
@@ -117,7 +118,7 @@ import {store} from '../../store';
     }
 
     // is a large screen
-    if (this.userSettingDrawerClosed) {
+    if (this.drawerOpen) {
       this.isDesktopNavigationOpen = false;
       if (this.appDrawer.close)
         this.appDrawer.close();
@@ -131,7 +132,7 @@ import {store} from '../../store';
   private async _loadSideMenu() {
     store.dispatch(AppActions.pageLoadingStarted());
     try {
-      // await import('../../../node_modules/@leavittsoftware/manage-side-menu/lib/manage-side-menu.js');
+      await import('./user-side-menu.js');
       this._sideMenuLoaded = true;
     } catch (error) {
       console.warn('One or more components failed to load', error);
@@ -148,9 +149,9 @@ import {store} from '../../store';
 
     if (this.isSmallScreen) {
       if (this.appDrawer.opened) {
-        this.userSettingDrawerClosed = true;
+        this.drawerOpen = true;
       } else {
-        this.userSettingDrawerClosed = false;
+        this.drawerOpen = false;
       }
       if (this.appDrawer.toggle)
         this.appDrawer.toggle();
@@ -158,10 +159,10 @@ import {store} from '../../store';
     }
 
     if (this.isDesktopNavigationOpen) {
-      this.userSettingDrawerClosed = true;
+      this.drawerOpen = true;
       this.isDesktopNavigationOpen = false;
     } else {
-      this.userSettingDrawerClosed = false;
+      this.drawerOpen = false;
       this.isDesktopNavigationOpen = true;
     }
   }
@@ -200,7 +201,7 @@ import {store} from '../../store';
     }
   }
 
-  app-drawer manage-side-menu{
+  app-drawer user-side-menu{
     display: block;
     margin: 0 8px;
   }
@@ -227,7 +228,7 @@ import {store} from '../../store';
     margin-right: 0;
   }
 
-  manage-side-menu .loading {
+  user-side-menu .loading {
     text-align: center;
     padding: 8px;
   }
@@ -294,7 +295,7 @@ import {store} from '../../store';
 <app-route route="{{route}}" pattern="/user/:page" data="{{routeData}}"> </app-route>
 
 <side-navigation closed$="[[!isDesktopNavigationOpen]]">
-  <manage-side-menu></manage-side-menu>
+  <user-side-menu></user-side-menu>
 </side-navigation>
 
 <main-content>
@@ -317,10 +318,10 @@ import {store} from '../../store';
 </app-header>
 
 
-<app-drawer swipe-open="true" unresolved>
-  <manage-side-menu>
+<app-drawer swipe-open="true" opened="{{drawerOpen}}" unresolved>
+  <user-side-menu opened="{{drawerOpen}}">
     <div class="loading">Loading...</div>
-  </manage-side-menu>
+  </user-side-menu>
 </app-drawer>`;
   }
 }
