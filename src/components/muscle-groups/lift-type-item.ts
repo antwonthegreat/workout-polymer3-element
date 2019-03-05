@@ -49,7 +49,7 @@ import {store} from '../../store';
     <style include="card-shared-styles">
           material-card {
             @apply --layout-horizontal;
-            background-color:#cccccc;
+            background-color:#dddddd;
             padding:4px;
           }
 

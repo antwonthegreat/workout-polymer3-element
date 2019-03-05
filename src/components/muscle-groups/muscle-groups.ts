@@ -69,6 +69,10 @@ import {store} from '../../store';
     padding: 24px;
   }
 
+  muscle-group-item {
+    margin:2px;
+  }
+
   svg {
     fill: var(--app-text-color-lighter);
     width: 24px;
