@@ -76,10 +76,37 @@ import {store} from '../../store';
           }
 
           mwc-switch {
-            margin:4px;
+            margin:8px;
+          }
+
+          svg {
+            fill: #757575;
+          }
+
+          expand-container {
+            background-color:#cccccc;
+            margin: 0 16px 0 0;
+            padding: 0;
+            min-width: 24px;
+            cursor: pointer;
+            -webkit-transition: .25s ease-in-out;
+            -moz-transition: .25s ease-in-out;
+            -o-transition: .25s ease-in-out;
+            transition: .25s ease-in-out;
+          }
+
+          expand-container[opened] {
+            -webkit-transform: rotate(180deg);
+            -moz-transform: translate(180deg);
+            -o-transform: translate(180deg);
+            -ms-transform: translate(180deg);
+            transform: translate(180deg);
           }
 
           workout-type-name {
+            @apply --layout-horizontal;
+            @apply --layout-self-center;
+            @apply --layout-center-center;
             @apply --layout-flex-2;
           }
 
@@ -95,6 +122,11 @@ import {store} from '../../store';
           <header on-click="_headerClicked">
             <mwc-switch on-click="_onToggleChecked" checked="[[isEnabled]]"></mwc-switch>
             <workout-type-name>[[workoutType.Name]]</workout-type-name>
+            <expand-container opened$="[[expanded]]">
+              <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"" />
+              </svg>
+            </expand-container>
           </header>
           <iron-collapse opened="[[expanded]]">
             <template is="dom-repeat" items="[[workoutType.LiftTypes]]">

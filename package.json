@@ -7,7 +7,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "@leavittsoftware/api-service": "^2.0.10",
-    "@leavittsoftware/titanium-elements": "^1.0.37",
+    "@leavittsoftware/titanium-elements": "1.0.37",
     "@material/mwc-switch": "^0.3.6",
     "@polymer/app-layout": "^3.0.0-pre.25",
     "@polymer/app-route": "^3.0.2",
