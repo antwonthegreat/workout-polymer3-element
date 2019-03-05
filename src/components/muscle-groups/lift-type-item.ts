@@ -2,27 +2,46 @@ import '@polymer/iron-flex-layout/iron-flex-layout.js';
 import '@material/mwc-switch/mwc-switch.js';
 
 import {connectMixin} from '@leavittsoftware/titanium-elements/lib/titanium-redux-connect-mixin';
-import {customElement, property} from '@polymer/decorators';
+import {customElement, observe, property} from '@polymer/decorators';
 import {html, PolymerElement} from '@polymer/polymer';
 
+import {createItemAsync, deleteItemAsync} from '../../actions/user-to-lift-type-actions';
 import LiftType from '../../model/LiftType.js';
-// import {Actions as AppActions} from '../../actions/app-actions';
-// import {deleteItemAsync, createItemAsync} from '../../actions/user-to-workout-type-actions';
 import {ApplicationState} from '../../model/state/ApplicationState';
-// import UserToLiftType from '../../model/UserToLiftType';
 import {store} from '../../store';
 
 @customElement('lift-type-item') export class LiftTypeItem extends connectMixin
 (store, PolymerElement) {
   @property() liftType: LiftType;
   @property() workoutTypeEnabled: boolean;
+  @property() isEnabled: boolean;
+  @property() userId: number;
 
-  protected _activeToggleClicked(event: any) {
-    event.stopPropagation();
-    // store.dispatch<any>(createWorkoutSetAsync(newWorkoutSet));
+  @observe('liftType.*', 'userId')
+  workoutTypeChanged(_liftType: any, userId: number) {
+    this.isEnabled = this.liftType && this.liftType.UserToLiftTypes.some(userToLiftType => userToLiftType.UserId === userId);
   }
 
   _stateChanged(_state: ApplicationState) {
+    if (!_state.AppReducer || !_state.AppReducer.userId)
+      return;
+
+    this.userId = _state.AppReducer.userId;
+  }
+
+  protected _onToggleChecked(e: Event) {
+    e.stopImmediatePropagation();
+    if (e.target && (e.target as any).disabled) {
+      e.preventDefault();
+      return;
+    }
+    if (this.isEnabled) {
+      const utlt = this.liftType.UserToLiftTypes.filter(userToLiftType => userToLiftType.UserId === this.userId)[0];
+      if (utlt)
+        store.dispatch<any>(deleteItemAsync(utlt.Id));
+    } else {
+      store.dispatch<any>(createItemAsync({UserId: this.userId, LiftTypeId: this.liftType.Id}));
+    }
   }
 
   static get template() {
@@ -39,6 +58,7 @@ import {store} from '../../store';
           }
 
           lift-type-name {
+            margin-left:16px;
             @apply --layout-flex-2;
           }
 
@@ -47,7 +67,7 @@ import {store} from '../../store';
           }
         </style>
         <material-card>
-          <mwc-switch on-click="_onToggleChecked" disabled="[[!workoutTypeEnabled]]" checked="[[IsEnabled]]"></mwc-switch>
+          <mwc-switch on-click="_onToggleChecked" disabled="[[!workoutTypeEnabled]]" checked="[[isEnabled]]"></mwc-switch>
           <lift-type-name>[[liftType.Name]]</lift-type-name>
         </material-card>
             `;

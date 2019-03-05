@@ -26,11 +26,6 @@ import {store} from '../../store';
     this.expanded = !this.expanded;
   }
 
-  protected _activeToggleClicked(event: any) {
-    event.stopPropagation();
-    // store.dispatch<any>(createWorkoutSetAsync(newWorkoutSet));
-  }
-
   @observe('workoutType.*', 'userId')
   workoutTypeChanged(_workoutType: any, userId: number) {
     this.isEnabled = this.workoutType && this.workoutType.UserToWorkoutTypes.some(userToWorkoutType => userToWorkoutType.UserId === userId);
