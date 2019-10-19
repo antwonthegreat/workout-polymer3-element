@@ -1,6 +1,5 @@
-# Workout - Polymer 3.x
+A workout app written in polymer 3 with typescript.
 
-* **npm install -G polymer-cli** install node dependencies
-
-* **npm install** install packages
-* **npm start** serve it up
+Getting Started:
+npm install
+npm start
